@@ -1,0 +1,90 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "Grok-X",
+  "projectDescription": "Real-time X intelligence for Claude Code via Grok API with search, monitoring, analysis, and structured extraction capabilities.",
+  "theme": "palm",
+  "primaryColor": "#d97a5b",
+  "lightColor": "#eabfa7",
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "configuration"
+            ]
+          },
+          {
+            "group": "Usage",
+            "pages": [
+              "usage/quickstart",
+              "usage/tool-combinations",
+              "usage/model-selection"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "features/x-search",
+              "features/cross-platform",
+              "features/data-analysis",
+              "features/structured-extraction"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "reference/command-flags",
+              "reference/extraction-schemas",
+              "reference/constraints"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Examples",
+        "groups": [
+          {
+            "group": "Use Cases",
+            "pages": [
+              "examples/handle-monitoring",
+              "examples/sentiment-analysis",
+              "examples/timeline-extraction",
+              "examples/cross-platform-research",
+              "examples/data-analysis"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Real-time X search using Grok's native x_search tool",
+    "Handle monitoring with include/exclude filters",
+    "Cross-platform research combining X and web search",
+    "Data analysis with code interpreter for engagement statistics",
+    "Structured JSON extraction with 5 built-in schemas",
+    "Image and video understanding in posts",
+    "Multiple Grok 4 model variants for speed vs depth tradeoffs"
+  ],
+  "publicApiSurface": [
+    "grok_x.py <query> - Main command entry point",
+    "--handles / -H - Monitor specific accounts",
+    "--exclude / -E - Exclude specific accounts",
+    "--from / --to - Date range filters",
+    "--images / -i - Enable image understanding",
+    "--videos / -v - Enable video understanding",
+    "--web / -w - Add web search alongside X search",
+    "--analyze / -a - Enable code interpreter for data analysis",
+    "--extract SCHEMA - Extract structured JSON (sentiment, narrative, timeline, profiles, claims)",
+    "--fast - Use grok-4-1-fast-non-reasoning model",
+    "--deep - Use grok-4-0709 model",
+    "--citations / -c - Print citation URLs",
+    "--no-stream - Disable streaming output"
+  ]
+}
