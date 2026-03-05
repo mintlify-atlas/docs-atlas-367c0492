@@ -1,0 +1,578 @@
+---
+title: Extraction Schemas
+description: Structured JSON schemas for typed data extraction from X search results
+---
+
+The `--extract` flag returns strictly-typed JSON output instead of natural language. Five built-in schemas cover common intelligence extraction patterns.
+
+<Warning>
+  **Model Override**
+  
+  Using `--extract` automatically selects the `grok-4-1-fast-non-reasoning` model, regardless of `--fast` or `--deep` flags. This is required by the xAI Responses API for structured output with tools.
+</Warning>
+
+---
+
+## Schema Types
+
+<Tabs>
+  <Tab title="sentiment">
+    ## Sentiment Analysis
+    
+    Extract overall sentiment, sentiment scoring, key claims, and notable accounts discussing a topic.
+    
+    **Use cases**:
+    - Market sentiment tracking (crypto, stocks, commodities)
+    - Brand perception monitoring
+    - Political opinion analysis
+    - Community mood detection
+    
+    ### Schema Definition
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being analyzed
+    </ResponseField>
+    
+    <ResponseField name="timeframe" type="string" required>
+      The time period covered by the analysis
+    </ResponseField>
+    
+    <ResponseField name="overall_sentiment" type="string" required>
+      Natural language description of the dominant sentiment (e.g., "cautiously bullish", "strongly negative", "mixed with bearish tilt")
+    </ResponseField>
+    
+    <ResponseField name="sentiment_score" type="number" required>
+      Numeric sentiment score from -1.0 (very bearish/negative) to 1.0 (very bullish/positive)
+    </ResponseField>
+    
+    <ResponseField name="key_claims" type="array" required>
+      Array of significant claims being made about the topic
+      
+      <Expandable title="key_claims[].properties">
+        <ResponseField name="claim" type="string" required>
+          The actual claim or statement
+        </ResponseField>
+        
+        <ResponseField name="handle" type="string" required>
+          X handle of representative account making this claim (without @)
+        </ResponseField>
+        
+        <ResponseField name="sentiment" type="string" required>
+          Sentiment of this specific claim (e.g., "bullish", "bearish", "neutral", "skeptical")
+        </ResponseField>
+        
+        <ResponseField name="url" type="string" required>
+          Direct URL to a representative post containing this claim
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="notable_accounts" type="array" required>
+      Array of X handles (strings) that are significant voices in the conversation
+    </ResponseField>
+    
+    <ResponseField name="visual_content_summary" type="string" required>
+      Summary of visual content found in posts (if `--images` or `--videos` was used)
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      High-level summary of the sentiment analysis findings
+    </ResponseField>
+    
+    ### Example Output
+    
+    ```json
+    {
+      "topic": "Bitcoin",
+      "timeframe": "Last 24 hours",
+      "overall_sentiment": "cautiously bullish",
+      "sentiment_score": 0.41,
+      "key_claims": [
+        {
+          "claim": "The ETF inflow numbers suggest institutional accumulation is quietly accelerating despite retail uncertainty.",
+          "handle": "woonomic",
+          "sentiment": "bullish",
+          "url": "https://x.com/woonomic/status/..."
+        },
+        {
+          "claim": "The halving is already priced in. Anyone expecting a 2020-style run is going to be disappointed.",
+          "handle": "PeterLBrandt",
+          "sentiment": "skeptical",
+          "url": "https://x.com/PeterLBrandt/status/..."
+        }
+      ],
+      "notable_accounts": ["woonomic", "PeterLBrandt", "saylor", "PrestonPysh"],
+      "visual_content_summary": "Multiple charts showing ETF inflows and on-chain metrics. Price action screenshots from trading platforms.",
+      "summary": "Bitcoin sentiment is cautiously bullish with a score of 0.41. Institutional accumulation narrative is strong, but macro headwinds and halving skepticism provide counterbalance."
+    }
+    ```
+    
+    ### Command Example
+    
+    ```bash
+    /grok-x "Bitcoin sentiment on X right now" --extract sentiment
+    /grok-x "Tesla brand perception" --extract sentiment --from 2026-02-01
+    /grok-x "AI safety discourse" --extract sentiment --handles ylecun,sama
+    ```
+  </Tab>
+  
+  <Tab title="narrative">
+    ## Narrative Mapping
+    
+    Extract dominant narratives, emerging narratives, and counter-narratives around a topic.
+    
+    **Use cases**:
+    - Identify competing storylines
+    - Track narrative evolution
+    - Detect emerging themes before they go mainstream
+    - Map ideological clusters
+    
+    ### Schema Definition
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being analyzed
+    </ResponseField>
+    
+    <ResponseField name="dominant_narratives" type="array" required>
+      Array of the strongest, most widely-held narratives
+      
+      <Expandable title="dominant_narratives[].properties">
+        <ResponseField name="narrative" type="string" required>
+          Description of the narrative
+        </ResponseField>
+        
+        <ResponseField name="sentiment" type="string" required>
+          Overall sentiment of this narrative (e.g., "positive", "critical", "neutral")
+        </ResponseField>
+        
+        <ResponseField name="key_accounts" type="array" required>
+          Array of X handles (strings) driving this narrative
+        </ResponseField>
+        
+        <ResponseField name="evidence" type="string" required>
+          Supporting evidence and examples from posts
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="emerging_narratives" type="array" required>
+      Array of narratives that are gaining traction but not yet dominant (strings)
+    </ResponseField>
+    
+    <ResponseField name="counter_narratives" type="array" required>
+      Array of narratives that directly challenge the dominant narratives (strings)
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      High-level summary of the narrative landscape
+    </ResponseField>
+    
+    ### Example Output
+    
+    ```json
+    {
+      "topic": "Remote work",
+      "dominant_narratives": [
+        {
+          "narrative": "Return-to-office mandates are about real estate and control, not productivity",
+          "sentiment": "critical",
+          "key_accounts": ["levelsio", "dhh", "paulg"],
+          "evidence": "Multiple threads citing productivity studies, real estate portfolios of major companies, and firsthand accounts of forced RTO."
+        },
+        {
+          "narrative": "Hybrid work is the realistic compromise that preserves culture while offering flexibility",
+          "sentiment": "neutral",
+          "key_accounts": ["satyanadella", "sundarpichai"],
+          "evidence": "Company leaders from Microsoft and Google discussing hybrid policies as 'best of both worlds'."
+        }
+      ],
+      "emerging_narratives": [
+        "Four-day work weeks are gaining traction in Europe as a separate but related trend",
+        "Remote work is enabling geographic arbitrage and reshaping housing markets"
+      ],
+      "counter_narratives": [
+        "In-person collaboration creates serendipity that Zoom calls cannot replicate",
+        "Junior employees need physical proximity to seniors for mentorship and learning"
+      ],
+      "summary": "Remote work discourse is polarized between RTO critics and hybrid advocates, with emerging threads around four-day weeks and geographic arbitrage."
+    }
+    ```
+    
+    ### Command Example
+    
+    ```bash
+    /grok-x "Remote work debate" --extract narrative
+    /grok-x "AI regulation" --extract narrative --web
+    /grok-x "Climate policy" --extract narrative --from 2026-01-01
+    ```
+  </Tab>
+  
+  <Tab title="timeline">
+    ## Timeline Construction
+    
+    Extract chronological events with source attribution and significance.
+    
+    **Use cases**:
+    - Product launch tracking
+    - Breaking news chronology
+    - Company announcement timelines
+    - Event sequences and causality
+    
+    ### Schema Definition
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being tracked
+    </ResponseField>
+    
+    <ResponseField name="events" type="array" required>
+      Array of events in chronological order
+      
+      <Expandable title="events[].properties">
+        <ResponseField name="date" type="string" required>
+          Date of the event (YYYY-MM-DD format)
+        </ResponseField>
+        
+        <ResponseField name="event" type="string" required>
+          Description of what happened
+        </ResponseField>
+        
+        <ResponseField name="source_handle" type="string" required>
+          X handle that announced or reported the event (without @)
+        </ResponseField>
+        
+        <ResponseField name="significance" type="string" required>
+          Why this event matters (e.g., "major product launch", "policy reversal", "minor update")
+        </ResponseField>
+        
+        <ResponseField name="url" type="string" required>
+          Direct URL to the post announcing the event
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      High-level summary of the timeline
+    </ResponseField>
+    
+    ### Example Output
+    
+    ```json
+    {
+      "topic": "xAI product announcements",
+      "events": [
+        {
+          "date": "2025-12-11",
+          "event": "Grok 3 released to Premium+ subscribers with significantly improved reasoning and a new 'Think' mode for extended chain-of-thought responses.",
+          "source_handle": "xai",
+          "significance": "major product launch",
+          "url": "https://x.com/xai/status/186634291000000001"
+        },
+        {
+          "date": "2026-01-08",
+          "event": "Aurora image generation model launched inside Grok on X. Available to all Premium subscribers.",
+          "source_handle": "xai",
+          "significance": "new capability launch",
+          "url": "https://x.com/xai/status/187700120000000001"
+        },
+        {
+          "date": "2026-02-27",
+          "event": "Grok-4 model family announced. Grok-4-0709 positioned as flagship reasoning model; fast variants released for latency-sensitive workloads.",
+          "source_handle": "xai",
+          "significance": "major model release",
+          "url": "https://x.com/xai/status/189731500000000001"
+        }
+      ],
+      "summary": "xAI shipped three major releases in Q1 2026: Grok 3 with Think mode, Aurora image generation, and the Grok-4 model family."
+    }
+    ```
+    
+    ### Command Example
+    
+    ```bash
+    /grok-x "xAI announcements in the last 90 days" --extract timeline --from 2025-12-01
+    /grok-x "Tesla production updates" --extract timeline --handles tesla,elonmusk
+    /grok-x "Fed policy changes" --extract timeline --web
+    ```
+  </Tab>
+  
+  <Tab title="profiles">
+    ## Account Profiling
+    
+    Profile X accounts by posting style, topics, positions, and influence.
+    
+    **Use cases**:
+    - Influencer analysis
+    - Account comparison
+    - Source credibility assessment
+    - Community mapping
+    
+    ### Schema Definition
+    
+    <ResponseField name="profiles" type="array" required>
+      Array of account profiles
+      
+      <Expandable title="profiles[].properties">
+        <ResponseField name="handle" type="string" required>
+          X handle being profiled (without @)
+        </ResponseField>
+        
+        <ResponseField name="posting_style" type="string" required>
+          Description of how this account posts (tone, frequency, format)
+        </ResponseField>
+        
+        <ResponseField name="main_topics" type="array" required>
+          Array of primary topics this account discusses (strings)
+        </ResponseField>
+        
+        <ResponseField name="key_positions" type="array" required>
+          Array of notable positions or viewpoints this account holds (strings)
+        </ResponseField>
+        
+        <ResponseField name="recent_notable_posts" type="array" required>
+          Array of recent significant posts (strings with context and metrics)
+        </ResponseField>
+        
+        <ResponseField name="influence_assessment" type="string" required>
+          Assessment of this account's influence and reach
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      High-level comparison and analysis of the profiled accounts
+    </ResponseField>
+    
+    ### Example Output
+    
+    ```json
+    {
+      "profiles": [
+        {
+          "handle": "naval",
+          "posting_style": "Aphoristic, philosophical tweets. Rarely threads. High signal-to-noise. Posts 1-3 times per day.",
+          "main_topics": ["startups", "philosophy", "investing", "crypto", "health"],
+          "key_positions": [
+            "Wealth creation through equity, not salary",
+            "Specific knowledge is highly valuable and non-teachable",
+            "Bitcoin is a store of value, not just a currency"
+          ],
+          "recent_notable_posts": [
+            "'Play long-term games with long-term people' - 87K likes, widely shared in startup circles",
+            "Thread on the difference between money and wealth - 42K likes"
+          ],
+          "influence_assessment": "Very high influence in startup and tech circles. Posts frequently cited in books and courses."
+        },
+        {
+          "handle": "paulg",
+          "posting_style": "Mix of startup advice, essays, and personal anecdotes. Responds frequently to replies. Posts 5-10 times per day.",
+          "main_topics": ["startups", "Y Combinator", "programming", "education", "writing"],
+          "key_positions": [
+            "Great founders are relentlessly resourceful",
+            "Do things that don't scale in early stages",
+            "Essays are superior to books for idea exploration"
+          ],
+          "recent_notable_posts": [
+            "'The most important quality in a startup founder is determination' - 56K likes",
+            "Advice on choosing co-founders - 38K likes, high engagement from YC network"
+          ],
+          "influence_assessment": "Extremely high influence in the startup ecosystem. YC founder. His essays shape entrepreneurial thinking."
+        }
+      ],
+      "summary": "Both are top-tier startup influencers. Naval's style is more philosophical and sparse; Paul's is more tactical and frequent. Both have cult followings."
+    }
+    ```
+    
+    ### Command Example
+    
+    ```bash
+    /grok-x "Compare posting styles" --extract profiles --handles naval,paulg
+    /grok-x "AI researcher profiles" --extract profiles --handles ylecun,karpathy,goodfellow
+    /grok-x "Crypto influencers" --extract profiles --handles saylor,jack,VitalikButerin
+    ```
+  </Tab>
+  
+  <Tab title="claims">
+    ## Claim Attribution
+    
+    Extract specific claims with source attribution, claim type, verifiability, and context.
+    
+    **Use cases**:
+    - Fact-checking pipelines
+    - Rumor tracking
+    - Attribution of statements
+    - Verifiable vs. opinion separation
+    
+    ### Schema Definition
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being analyzed for claims
+    </ResponseField>
+    
+    <ResponseField name="claims" type="array" required>
+      Array of claims being made about the topic
+      
+      <Expandable title="claims[].properties">
+        <ResponseField name="claim" type="string" required>
+          The specific claim being made
+        </ResponseField>
+        
+        <ResponseField name="attributed_to" type="string" required>
+          X handle making the claim (without @)
+        </ResponseField>
+        
+        <ResponseField name="claim_type" type="string" required>
+          Type of claim: `factual`, `opinion`, `prediction`, or `allegation`
+        </ResponseField>
+        
+        <ResponseField name="verifiable" type="boolean" required>
+          Whether this claim can be fact-checked against external sources
+        </ResponseField>
+        
+        <ResponseField name="context" type="string" required>
+          Context around the claim (why it was made, what it responds to, etc.)
+        </ResponseField>
+        
+        <ResponseField name="url" type="string" required>
+          Direct URL to the post containing the claim
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      High-level summary of the claims and their credibility
+    </ResponseField>
+    
+    ### Example Output
+    
+    ```json
+    {
+      "topic": "Chip export controls",
+      "claims": [
+        {
+          "claim": "The Commerce Department extended the comment period for BIS export rules by 60 days",
+          "attributed_to": "SemiAnalysis",
+          "claim_type": "factual",
+          "verifiable": true,
+          "context": "Analyzing a procedural notice from the Commerce Department as signal of policy reconsideration",
+          "url": "https://x.com/SemiAnalysis/status/189600234000000001"
+        },
+        {
+          "claim": "This extension means the administration is backing down from the November 2025 draft",
+          "attributed_to": "SemiAnalysis",
+          "claim_type": "prediction",
+          "verifiable": false,
+          "context": "Interpreting the procedural extension as a political signal rather than administrative routine",
+          "url": "https://x.com/SemiAnalysis/status/189600234000000001"
+        },
+        {
+          "claim": "A source at a major US fab described current rules as 'administratively unworkable'",
+          "attributed_to": "karaswisher",
+          "claim_type": "allegation",
+          "verifiable": false,
+          "context": "Anonymous sourcing from industry contact, reported without corroboration",
+          "url": "https://x.com/karaswisher/status/189588901000000001"
+        }
+      ],
+      "summary": "Claims mix verifiable facts (BIS extension confirmed by Reuters) with predictions and anonymous sourcing. The procedural extension is factual; its interpretation is speculative."
+    }
+    ```
+    
+    ### Command Example
+    
+    ```bash
+    /grok-x "Chip export control claims" --extract claims --web
+    /grok-x "AI safety allegations" --extract claims --handles ylecun,elonmusk
+    /grok-x "Election fraud claims" --extract claims --from 2026-01-01
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Schema Constraints
+
+<Warning>
+  **Strict Schema Enforcement**
+  
+  All schemas use `strict: true` mode with `additionalProperties: false`. Grok is forced to return JSON that exactly matches the schema — no extra fields, no missing required fields.
+  
+  If Grok cannot extract enough information to populate required fields, it will return minimal valid JSON rather than failing.
+</Warning>
+
+---
+
+## Technical Implementation
+
+When you use `--extract`, the following happens:
+
+1. **Model override**: Model is forced to `grok-4-1-fast-non-reasoning` (required for structured output with tools)
+2. **Streaming disabled**: Structured output is non-streaming by design
+3. **Schema injection**: The schema is passed to the Responses API as:
+   ```python
+   "text": {
+     "format": {
+       "type": "json_schema",
+       "name": "<schema_name>",
+       "schema": SCHEMAS[schema_name],
+       "strict": True
+     }
+   }
+   ```
+4. **JSON parsing**: Response is parsed as JSON and printed with indentation
+5. **Validation**: The xAI API validates the output against the schema before returning it
+
+See `grok_x.py:289-308` for implementation details.
+
+---
+
+## Combining with Other Flags
+
+### Valid Combinations
+
+```bash
+# Extraction + handle filtering
+/grok-x "query" --extract sentiment --handles saylor,jack
+
+# Extraction + date range
+/grok-x "query" --extract timeline --from 2026-01-01 --to 2026-03-01
+
+# Extraction + media analysis
+/grok-x "query" --extract narrative --images --videos
+
+# Extraction + web search
+/grok-x "query" --extract claims --web
+```
+
+### Invalid Combinations
+
+<Warning>
+  **`--extract` cannot be combined with `--analyze`**
+  
+  These are mutually exclusive capabilities. Choose either:
+  - Quantitative analysis (`--analyze` for code interpreter)
+  - Structured extraction (`--extract SCHEMA` for typed JSON)
+  
+  This is an xAI API limitation.
+</Warning>
+
+---
+
+## Raw Schema Access
+
+The schemas are defined in `grok_x.py` lines 22-150 as the `SCHEMAS` dictionary. You can inspect them directly:
+
+```python
+SCHEMAS = {
+    "sentiment": { ... },
+    "narrative": { ... },
+    "timeline": { ... },
+    "profiles": { ... },
+    "claims": { ... }
+}
+```
+
+Each schema is a JSON Schema object with:
+- `type: "object"`
+- `properties`: Field definitions with types and descriptions
+- `required`: List of mandatory fields
+- `additionalProperties: false`: No extra fields allowed

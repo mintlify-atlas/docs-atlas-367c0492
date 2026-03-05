@@ -1,0 +1,112 @@
+---
+title: "Configuration"
+description: "Configure Grok-X with your xAI API key and preferences"
+---
+
+## Adding Your API Key
+
+Grok-X requires an xAI API key to communicate with the Grok Responses API. Add your key to Claude Code's settings file:
+
+<Steps>
+  <Step title="Open settings.json">
+    Edit `~/.claude/settings.json` (create it if it doesn't exist).
+  </Step>
+  
+  <Step title="Add your API key">
+    Add the following configuration:
+    
+    ```json
+    {
+      "env": {
+        "XAI_API_KEY": "xai-your-key-here",
+        "GROK_X_DEFAULT_MODEL": "grok-4-1-fast-reasoning"
+      }
+    }
+    ```
+    
+    Replace `xai-your-key-here` with your actual API key.
+  </Step>
+</Steps>
+
+<Warning>
+  Keep your API key secure. Never commit `settings.json` to version control or share it publicly.
+</Warning>
+
+## Configuration Options
+
+### XAI_API_KEY (Required)
+
+Your xAI API key for authenticating requests to the Grok API.
+
+```json
+{
+  "env": {
+    "XAI_API_KEY": "xai-your-key-here"
+  }
+}
+```
+
+### GROK_X_DEFAULT_MODEL (Optional)
+
+The default Grok model to use for queries. If omitted, the skill defaults to `grok-4-1-fast-reasoning`.
+
+```json
+{
+  "env": {
+    "XAI_API_KEY": "xai-your-key-here",
+    "GROK_X_DEFAULT_MODEL": "grok-4-1-fast-reasoning"
+  }
+}
+```
+
+<Info>
+  You can override the model per-query using the `--fast` or `--deep` flags, regardless of this setting.
+</Info>
+
+## Getting an xAI API Key
+
+To obtain an API key from xAI:
+
+<Steps>
+  <Step title="Visit the xAI console">
+    Go to [console.x.ai](https://console.x.ai)
+  </Step>
+  
+  <Step title="Sign in">
+    Sign in with your X (Twitter) account.
+  </Step>
+  
+  <Step title="Navigate to API Keys">
+    Click **API Keys** in the left sidebar.
+  </Step>
+  
+  <Step title="Create a new key">
+    Click **Create key** to generate a new API key.
+  </Step>
+  
+  <Step title="Copy and save">
+    Copy the key (it begins with `xai-`) and add it to `~/.claude/settings.json` as shown above.
+  </Step>
+</Steps>
+
+<Note>
+  xAI API keys always begin with the prefix `xai-`.
+</Note>
+
+## Verifying Configuration
+
+To verify your configuration is working correctly, try running a simple query from within Claude Code:
+
+```
+/grok-x "What is trending on X today?"
+```
+
+If configured correctly, Grok-X will execute the query and return results from the live X platform.
+
+<Tip>
+  If you see an error about `XAI_API_KEY environment variable not set`, double-check that your `settings.json` file is properly formatted and located at `~/.claude/settings.json`.
+</Tip>
+
+## Next Steps
+
+With Grok-X configured, you're ready to start using it! Check the Usage guide to learn about all available commands and features.

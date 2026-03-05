@@ -1,0 +1,175 @@
+---
+title: Data Analysis
+description: Quantitative analysis of X posts using code_interpreter for engagement stats, trends, and patterns
+---
+
+## Overview
+
+The `--analyze` flag activates Grok's `code_interpreter` tool, enabling quantitative analysis of X search results. Grok writes and executes code to compute:
+
+- Engagement statistics (likes, reposts, replies)
+- Posting frequency and velocity
+- Trend patterns over time
+- Sentiment distribution
+- Geographic signals
+- Account influence metrics
+
+This transforms raw X posts into actionable data insights.
+
+## How It Works
+
+Add the `--analyze` flag (or `-a`) to any X Search query:
+
+```bash
+/grok-x "<query>" --analyze
+```
+
+Grok will:
+1. Use `x_search` to gather relevant posts
+2. Activate `code_interpreter` to process the data
+3. Generate statistics, tables, and trend analysis
+4. Present findings with specific numbers and patterns
+
+<Info>
+  The `--analyze` flag cannot be combined with `--extract`. Choose quantitative analysis or structured JSON output, but not both.
+</Info>
+
+## What It Can Analyze
+
+- **Engagement metrics:** Like counts, repost ratios, reply volumes
+- **Posting patterns:** Daily/hourly frequency, peak activity times
+- **Trend velocity:** Rate of growth or decline in discussion volume
+- **Sentiment distribution:** Breakdown of positive/negative/neutral posts
+- **Company/topic mentions:** Frequency tables by entity
+- **Geographic distribution:** Where posts are originating from
+- **Account influence:** Amplification patterns and reach
+
+## Real Example: Tech Layoffs Analysis
+
+```bash
+/grok-x "Tech layoff announcements this month" --analyze --from 2026-02-01
+```
+
+**Output:**
+
+> **Tech Layoff Activity — February 2026 Analysis**
+>
+> Grok searched X for layoff announcements and ran quantitative analysis via code interpreter across 847 relevant posts from Feb 1–Mar 4, 2026.
+>
+> **By company (posts mentioning layoffs):**
+> | Company | Posts | Estimated headcount reduction |
+> |---------|-------|-------------------------------|
+> | Salesforce | 143 | ~1,200 |
+> | Intel | 98 | ~2,800 |
+> | Snap | 67 | ~400 |
+> | Twilio | 54 | ~350 |
+> | Workday | 41 | ~600 |
+>
+> **Posting velocity:** Layoff-related posts peaked on Feb 14 (Valentine's Day — 203 posts in 24h) and again on Feb 28 (end-of-month HR cycles — 178 posts).
+>
+> **Sentiment in layoff posts:** 61% negative/critical, 24% neutral/informational, 15% supportive of company rationale. The supportive cluster skews toward accounts in finance and investor relations.
+>
+> **Geographic signal:** 71% of geo-tagged posts originated from US accounts, 14% from India (Salesforce and Workday have large India engineering hubs), 8% from UK.
+>
+> **Most amplified single post:** An Intel engineer's firsthand account of receiving a severance email with 48 hours notice — 94K likes, 41K reposts, 6.2K replies.
+>
+> **Conclusion:** February 2026 is tracking ~18% above the rolling 6-month average for layoff post volume. The Intel and Salesforce announcements are dominating signal. No signs of a sectoral recovery narrative emerging yet.
+
+## Data Tables and Insights
+
+Grok's `code_interpreter` produces:
+
+### Frequency Tables
+
+```markdown
+| Entity | Post Count | Percentage |
+|--------|------------|------------|
+| Value1 | 143        | 34.2%      |
+| Value2 | 98         | 23.4%      |
+```
+
+### Time Series Analysis
+
+- Peak posting times
+- Day-over-day trends
+- Weekly/monthly patterns
+
+### Engagement Metrics
+
+- Average likes per post
+- Repost-to-like ratios
+- Viral content identification
+- Amplification patterns
+
+### Statistical Summaries
+
+- Means, medians, and distributions
+- Comparative analysis (current vs. baseline)
+- Outlier detection
+
+## Example Use Cases
+
+### Engagement trend analysis
+
+```bash
+/grok-x "@elonmusk engagement this month" --analyze --handles elonmusk --from 2026-02-01
+```
+
+Analyzes posting frequency, engagement rates, and content themes for a specific account.
+
+### Topic velocity tracking
+
+```bash
+/grok-x "artificial general intelligence discussions" --analyze --from 2026-01-01
+```
+
+Tracks how discussion volume has changed over time and identifies peak periods.
+
+### Comparative sentiment
+
+```bash
+/grok-x "Bitcoin vs Ethereum sentiment" --analyze
+```
+
+Compares discussion volume, sentiment distribution, and engagement patterns between two topics.
+
+### Event impact measurement
+
+```bash
+/grok-x "Product launch reactions" --analyze --from 2026-02-20 --to 2026-02-27
+```
+
+Quantifies reaction patterns in the week following a specific event.
+
+## Combining with Other Flags
+
+The `--analyze` flag works with:
+
+- `--handles` / `--exclude`: Focus analysis on specific accounts
+- `--from` / `--to`: Analyze specific time periods
+- `--images` / `--videos`: Include media-rich posts in analysis
+- `--citations`: Get source URLs for verification
+
+### Example: Video content analysis
+
+```bash
+/grok-x "Tesla discussion" --analyze --videos --from 2026-02-01
+```
+
+Analyzes posts containing video content about Tesla, including frequency and engagement patterns.
+
+<Note>
+  **Constraint:** `--analyze` and `--extract` cannot be combined. Use `--analyze` for quantitative insights or `--extract` for structured JSON, but not both in the same query.
+</Note>
+
+## When to Use Data Analysis
+
+Choose `--analyze` when you need:
+
+- **Numbers and statistics** rather than narrative summaries
+- **Trend identification** across time periods
+- **Comparative analysis** between entities or topics
+- **Engagement metrics** to measure amplification
+- **Pattern detection** in posting behavior or sentiment
+
+For structured, typed JSON output instead, use [`--extract`](/features/structured-extraction).

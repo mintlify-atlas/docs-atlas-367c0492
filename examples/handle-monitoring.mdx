@@ -1,0 +1,94 @@
+---
+title: 'Handle Monitoring with Video Analysis'
+description: 'Track specific X accounts and analyze their video content'
+---
+
+## Overview
+
+The `--handles` flag allows you to monitor specific X accounts and get detailed summaries of their activity. Combined with `--videos`, Grok-X performs frame-by-frame analysis of video content to extract context that text alone cannot provide.
+
+## Use Case
+
+This workflow is ideal for:
+- Monitoring journalists and content creators
+- Tracking political accounts and public figures
+- Analyzing video content patterns and engagement
+- Understanding what specific accounts are focused on over time
+
+## Example: Weekly Summary with Video Analysis
+
+<Steps>
+  <Step title="Run the command">
+    Monitor a specific handle's weekly activity with video frame analysis:
+
+    ```bash
+    /grok-x "What has @atrupar posted about this week?" --handles atrupar --videos --from 2026-02-25
+    ```
+
+    **Flags explained:**
+    - `--handles atrupar` — Filter results to posts from @atrupar only
+    - `--videos` — Enable video frame analysis for visual context
+    - `--from 2026-02-25` — Start date for the search window
+  </Step>
+
+  <Step title="Review the output">
+    Grok-X returns a structured summary with video frame analysis:
+
+    > **@atrupar — Weekly Summary (Feb 25 – Mar 4, 2026)**
+    >
+    > Aaron Rupar posted 34 times this week, with a sharp focus on Congressional hearings and White House press briefings. Video content accounted for 22 of 34 posts.
+    >
+    > **Notable posts:**
+    >
+    > > "Watching the press secretary explain why the administration doesn't consider this a constitutional crisis is genuinely surreal."
+    > > — *Feb 26, 2026* · 41K likes · 18K reposts
+    >
+    > Video frame analysis: 47-second clip from the White House briefing room. Speaker at the podium, four reporters visible with raised hands. Chyron at bottom reads "LIVE: White House Press Briefing." No visual aids or slides present.
+    >
+    > > "This exchange between Sen. Warren and the Treasury Secretary is the most direct questioning I've seen in months."
+    > > — *Feb 28, 2026* · 67K likes · 29K reposts
+    >
+    > Video frame analysis: Senate hearing chamber. Two individuals visible — one at the witness table, one at the dais. Caption overlay from C-SPAN feed. Timestamp shows 2h 14m into the hearing. Body language of the witness shows visible tension.
+    >
+    > > "They keep using the word 'reform' but nobody is defining what they're reforming toward."
+    > > — *Mar 1, 2026* · 28K likes · 11K reposts
+    >
+    > Video frame analysis: Cable news panel, four guests. Lower-third identifies two speakers. Chyron reads "BREAKING: Senate vote delayed." Studio lighting, no field reporting context.
+    >
+    > **Engagement trend:** Repost-to-like ratio averaged 0.44 this week, above his 90-day baseline of 0.31 — indicating unusually high amplification of his content.
+  </Step>
+
+  <Step title="Interpret the results">
+    The output provides:
+    - **Post count and focus areas** — What topics dominated the week
+    - **Notable posts with engagement metrics** — High-impact content with likes and reposts
+    - **Video frame analysis** — Visual context from key frames (chyrons, body language, settings)
+    - **Engagement trends** — Comparative metrics showing amplification patterns
+  </Step>
+</Steps>
+
+## Key Features
+
+### Video Frame Analysis
+When `--videos` is enabled, Grok-X extracts:
+- Visual context (settings, people, objects)
+- On-screen text (chyrons, captions, lower-thirds)
+- Body language and presentation style
+- Video duration and timestamps
+
+### Engagement Metrics
+Each notable post includes:
+- Like counts
+- Repost counts
+- Reply counts (when significant)
+- Comparative baseline metrics
+
+<Info>
+  Video analysis works best with news clips, political content, and presentation-style videos. Pure entertainment or highly edited content may yield less structured insights.
+</Info>
+
+## Related Flags
+
+- `--images` — Analyze image content in addition to or instead of videos
+- `--citations` — Include source URLs for verification
+- `--to` — Specify an end date for the search window

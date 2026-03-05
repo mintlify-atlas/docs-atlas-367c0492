@@ -1,0 +1,149 @@
+---
+title: 'Quickstart'
+description: 'Get started with /grok-x in minutes'
+icon: 'rocket'
+---
+
+## Basic Invocation
+
+The `/grok-x` skill gives you real-time X intelligence directly inside Claude Code. The most basic way to use it is:
+
+```bash
+/grok-x <query or analysis request>
+```
+
+Claude Code translates this into:
+
+```bash
+~/.claude/skills/grok-x/.venv/bin/python3 ~/.claude/skills/grok-x/grok_x.py "<query>" [flags]
+```
+
+<Note>
+  Make sure you've completed the [installation](/installation) and added your xAI API key to `~/.claude/settings.json` before proceeding.
+</Note>
+
+---
+
+## Your First Query
+
+<Steps>
+  <Step title="Ask a simple question">
+    Start with a basic X search to see what's happening:
+    
+    ```bash
+    /grok-x "What is happening with AI regulation on X?"
+    ```
+    
+    Grok uses its native `x_search` tool to query the live X platform and returns a structured analysis.
+  </Step>
+  
+  <Step title="Monitor a specific account">
+    Track what a particular user is posting about:
+    
+    ```bash
+    /grok-x "What has @atrupar posted about this week?" --handles atrupar --from 2026-02-25
+    ```
+    
+    The `--handles` flag focuses exclusively on specific accounts (up to 10). The `@` symbol is optional.
+  </Step>
+  
+  <Step title="Add citations">
+    Get direct links to all sources:
+    
+    ```bash
+    /grok-x "SpaceX Starship latest" --citations
+    ```
+    
+    Citations are printed after the response in a clean list format.
+  </Step>
+</Steps>
+
+---
+
+## Common Patterns
+
+### Quick Lookup
+
+For simple, fast queries, use the `--fast` flag to select `grok-4-1-fast-non-reasoning`:
+
+```bash
+/grok-x "What did @naval post today?" --fast
+```
+
+**When to use:** Simple lookups, quick quote pulls, or when you need results in seconds.
+
+### Date Range Search
+
+Filter posts by date using `--from` and `--to`:
+
+```bash
+/grok-x "Bitcoin discussion" --from 2026-02-01 --to 2026-03-01
+```
+
+**Format:** Dates must be in `YYYY-MM-DD` format.
+
+### Monitor Multiple Accounts
+
+Track up to 10 specific accounts in one query:
+
+```bash
+/grok-x "AI and chip policy views" --handles naval,balajis,pmarca --from 2025-01-01 --citations
+```
+
+**Tip:** Separate handles with commas (no spaces). The `@` is optional.
+
+### Exclude Noise
+
+Filter out specific accounts you don't want to see:
+
+```bash
+/grok-x "Grok API developer feedback" --exclude openai,google,anthropic --from 2025-01-01
+```
+
+<Info>
+  You cannot combine `--handles` and `--exclude` in the same query. This is an xAI API limitation.
+</Info>
+
+---
+
+## Expected Output Format
+
+By default, `/grok-x` returns **streaming text analysis** with inline citations:
+
+### Example: Handle Monitoring
+
+**Query:**
+```bash
+/grok-x "What has @atrupar posted about this week?" --handles atrupar --from 2026-02-25
+```
+
+**Output:**
+
+> **@atrupar — Weekly Summary (Feb 25 – Mar 4, 2026)**
+>
+> Aaron Rupar posted 34 times this week, with a sharp focus on Congressional hearings and White House press briefings. Video content accounted for 22 of 34 posts.
+>
+> **Notable posts:**
+>
+> > "Watching the press secretary explain why the administration doesn't consider this a constitutional crisis is genuinely surreal."
+> > — *Feb 26, 2026* · 41K likes · 18K reposts
+>
+> **Engagement trend:** Repost-to-like ratio averaged 0.44 this week, above his 90-day baseline of 0.31 — indicating unusually high amplification of his content.
+
+<Tip>
+  Add `--citations` to get a clean list of all source URLs at the end of the response.
+</Tip>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Tool Combinations" icon="wand-magic-sparkles" href="/usage/tool-combinations">
+    Learn how to combine X search with web search, data analysis, and structured extraction
+  </Card>
+  
+  <Card title="Model Selection" icon="brain" href="/usage/model-selection">
+    Choose the right model for your use case: fast, default, or deep reasoning
+  </Card>
+</CardGroup>

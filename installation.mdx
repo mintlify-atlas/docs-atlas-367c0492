@@ -1,0 +1,89 @@
+---
+title: "Installation"
+description: "Install the Grok-X skill for Claude Code"
+---
+
+## Quick Installation
+
+The fastest way to install Grok-X is using the one-line installer:
+
+<Steps>
+  <Step title="Run the installer">
+    Execute the following command in your terminal:
+    
+    ```bash
+    bash <(curl -fsSL https://raw.githubusercontent.com/stat-guy/grok-x/main/install.sh)
+    ```
+    
+    The installer will:
+    - Create a virtual environment at `~/.claude/skills/grok-x/.venv`
+    - Install the required dependencies
+    - Register the skill with Claude Code
+  </Step>
+  
+  <Step title="Verify the installation">
+    Confirm the installation was successful by running:
+    
+    ```bash
+    ~/.claude/skills/grok-x/.venv/bin/python3 ~/.claude/skills/grok-x/grok_x.py --help
+    ```
+    
+    You should see the help output displaying available commands and options.
+  </Step>
+  
+  <Step title="Configure your API key">
+    Add your xAI API key to complete the setup. See the [Configuration](/configuration) guide for details.
+  </Step>
+</Steps>
+
+<Note>
+  The installer requires either `curl` or `wget` and will automatically detect which is available on your system.
+</Note>
+
+## Manual Installation
+
+If you prefer to install manually or need more control over the process:
+
+<Steps>
+  <Step title="Clone the skill repository">
+    ```bash
+    git clone https://github.com/stat-guy/grok-x.git ~/.claude/skills/grok-x
+    ```
+  </Step>
+  
+  <Step title="Create a virtual environment">
+    ```bash
+    python3 -m venv ~/.claude/skills/grok-x/.venv
+    ```
+  </Step>
+  
+  <Step title="Install dependencies">
+    ```bash
+    ~/.claude/skills/grok-x/.venv/bin/pip install openai
+    ```
+    
+    <Info>
+      Grok-X uses the OpenAI Python client library to communicate with the xAI API.
+    </Info>
+  </Step>
+  
+  <Step title="Verify the installation">
+    ```bash
+    ~/.claude/skills/grok-x/.venv/bin/python3 ~/.claude/skills/grok-x/grok_x.py --help
+    ```
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+<Warning>
+  If you encounter a `python3: command not found` error, ensure Python 3.9 or later is installed and available in your PATH.
+</Warning>
+
+<Tip>
+  The skill directory at `~/.claude/skills/grok-x` can be relocated if needed, but you'll need to update any absolute paths in your configuration.
+</Tip>
+
+## Next Steps
+
+With Grok-X installed, proceed to [Configuration](/configuration) to add your xAI API key and start using the skill.

@@ -1,0 +1,136 @@
+---
+title: 'Sentiment Analysis'
+description: 'Extract structured sentiment data from X conversations'
+---
+
+## Overview
+
+The `--extract sentiment` flag returns structured JSON output containing overall sentiment, key claims, and notable accounts discussing a topic. This is useful for understanding the tone and substance of conversations on X.
+
+## Use Case
+
+Sentiment extraction is ideal for:
+- Tracking crypto and financial market sentiment
+- Understanding public opinion on products or companies
+- Identifying key narratives and their frequency
+- Mapping influential voices and their stances
+
+## Example: Bitcoin Sentiment Analysis
+
+Get a structured sentiment snapshot of Bitcoin discussions on X:
+
+```bash
+/grok-x "Bitcoin sentiment on X right now" --extract sentiment
+```
+
+### Output
+
+Grok-X returns a structured JSON response:
+
+```json
+{
+  "overall_sentiment": "cautiously bullish",
+  "sentiment_score": 0.41,
+  "key_claims": [
+    {
+      "claim": "The ETF inflow numbers suggest institutional accumulation is quietly accelerating despite retail uncertainty.",
+      "frequency": "high",
+      "representative_handle": "woonomic"
+    },
+    {
+      "claim": "The halving is already priced in. Anyone expecting a 2020-style run is going to be disappointed.",
+      "frequency": "moderate",
+      "representative_handle": "PeterLBrandt"
+    },
+    {
+      "claim": "On-chain data shows long-term holders are not selling. Diamond hands thesis remains intact.",
+      "frequency": "high",
+      "representative_handle": "glassnodealerts"
+    },
+    {
+      "claim": "Macro headwinds from Fed policy are suppressing the ceiling. $120K is the new realistic target, not $250K.",
+      "frequency": "moderate",
+      "representative_handle": "RaoulGMI"
+    },
+    {
+      "claim": "Altcoins are bleeding against BTC. Capital is rotating into Bitcoin dominance as a flight to safety.",
+      "frequency": "moderate",
+      "representative_handle": "CryptoCobain"
+    }
+  ],
+  "notable_accounts": [
+    { "handle": "woonomic", "stance": "bullish", "influence_tier": "high" },
+    { "handle": "PeterLBrandt", "stance": "skeptical", "influence_tier": "high" },
+    { "handle": "saylor", "stance": "strongly bullish", "influence_tier": "very high" },
+    { "handle": "PrestonPysh", "stance": "bullish", "influence_tier": "medium" }
+  ]
+}
+```
+
+## Output Structure
+
+The sentiment extraction output contains three main sections:
+
+<ResponseField name="overall_sentiment" type="string">
+  A qualitative assessment of the dominant sentiment (e.g., "cautiously bullish", "bearish", "mixed", "neutral")
+</ResponseField>
+
+<ResponseField name="sentiment_score" type="number">
+  A quantitative score typically ranging from -1.0 (very bearish) to +1.0 (very bullish). Scores near 0 indicate neutral or mixed sentiment.
+</ResponseField>
+
+<ResponseField name="key_claims" type="array">
+  An array of the most frequently repeated claims or narratives:
+
+  <Expandable title="Claim Object">
+    <ResponseField name="claim" type="string">
+      The substance of the claim or narrative
+    </ResponseField>
+
+    <ResponseField name="frequency" type="string">
+      How often this claim appears: "high", "moderate", or "low"
+    </ResponseField>
+
+    <ResponseField name="representative_handle" type="string">
+      An X handle that prominently expressed this claim
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="notable_accounts" type="array">
+  Key accounts driving the conversation:
+
+  <Expandable title="Account Object">
+    <ResponseField name="handle" type="string">
+      The X handle (without @)
+    </ResponseField>
+
+    <ResponseField name="stance" type="string">
+      The account's position: "bullish", "bearish", "skeptical", "neutral", etc.
+    </ResponseField>
+
+    <ResponseField name="influence_tier" type="string">
+      Relative influence level: "very high", "high", "medium", "low"
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+## Interpreting the Results
+
+In this Bitcoin example:
+
+- **Overall sentiment** is "cautiously bullish" with a score of 0.41 (moderately positive)
+- **Dominant narratives** include institutional accumulation, halving concerns, and on-chain holder behavior
+- **Key voices** range from strongly bullish (saylor) to skeptical (PeterLBrandt)
+- **Frequency tags** help identify which claims are most widespread vs. niche
+
+<Info>
+  The `sentiment_score` is calibrated relative to the typical tone of discussions on the topic. A 0.41 for Bitcoin represents moderate optimism, but the same score for a different topic might indicate different sentiment intensity.
+</Info>
+
+## Related Flags
+
+- `--extract narrative` — Extract broader narrative structures instead of sentiment-focused analysis
+- `--extract claims` — Focus specifically on claims with attribution, without sentiment scoring
+- `--from` / `--to` — Narrow the time window for sentiment analysis
+- `--handles` — Limit sentiment analysis to specific accounts

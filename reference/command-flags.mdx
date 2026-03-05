@@ -1,0 +1,371 @@
+---
+title: Command Flags Reference
+description: Comprehensive reference for all grok-x command-line flags and options
+---
+
+All flags available in the `/grok-x` skill, organized by category.
+
+## X Search Flags
+
+Control what X posts to search and how to filter them.
+
+<ParamField path="--handles" type="string">
+  Comma-separated list of X handles to focus on. The `@` symbol is optional.
+  
+  **Maximum**: 10 handles
+  
+  **Constraints**:
+  - Cannot be combined with `--exclude`
+  - Each handle is automatically stripped of the `@` prefix
+  
+  **Examples**:
+  ```bash
+  --handles elonmusk,xai
+  --handles @saylor,@jack  # @ is optional
+  ```
+</ParamField>
+
+<ParamField path="--exclude" type="string">
+  Comma-separated list of X handles to exclude from results. The `@` symbol is optional.
+  
+  **Maximum**: 10 handles
+  
+  **Constraints**:
+  - Cannot be combined with `--handles`
+  - This is an xAI API limitation — you must choose either inclusion or exclusion, not both
+  
+  **Examples**:
+  ```bash
+  --exclude openai,google
+  --exclude @spam,@bot  # @ is optional
+  ```
+</ParamField>
+
+<ParamField path="--from" type="string">
+  Start date for the search range. Must be in `YYYY-MM-DD` format.
+  
+  **Format**: `YYYY-MM-DD`
+  
+  **Example**:
+  ```bash
+  --from 2026-02-01
+  ```
+</ParamField>
+
+<ParamField path="--to" type="string">
+  End date for the search range. Must be in `YYYY-MM-DD` format.
+  
+  **Format**: `YYYY-MM-DD`
+  
+  **Example**:
+  ```bash
+  --to 2026-03-01
+  ```
+</ParamField>
+
+<ParamField path="--images" type="boolean">
+  Enable image analysis for posts containing images. Grok will analyze charts, screenshots, memes, and other visual content.
+  
+  **Short form**: `-i`
+  
+  **Default**: `false`
+  
+  **Implementation**: Adds `enable_image_understanding: true` to both `x_search` and `web_search` tools
+  
+  **Example**:
+  ```bash
+  --images
+  -i  # short form
+  ```
+</ParamField>
+
+<ParamField path="--videos" type="boolean">
+  Enable video analysis for posts containing videos. Grok will analyze video frames and content.
+  
+  **Short form**: `-v`
+  
+  **Default**: `false`
+  
+  **Constraints**:
+  - Only works with `x_search` — this is an X Search exclusive capability
+  - Has no effect when used with `--web` alone
+  
+  **Implementation**: Adds `enable_video_understanding: true` to the `x_search` tool
+  
+  **Example**:
+  ```bash
+  --videos
+  -v  # short form
+  ```
+</ParamField>
+
+---
+
+## Tool Flags
+
+Activate additional capabilities beyond basic X search.
+
+<ParamField path="--web" type="boolean">
+  Add web search alongside X search. Enables cross-platform research and fact-checking.
+  
+  **Short form**: `-w`
+  
+  **Default**: `false`
+  
+  **Implementation**: Adds `web_search` tool to the tools array
+  
+  **Use cases**:
+  - Verify claims from X against broader web sources
+  - Find corroborating evidence from news sites, blogs, and documentation
+  - Get a complete picture across X and the open web
+  
+  **Example**:
+  ```bash
+  --web
+  -w  # short form
+  ```
+</ParamField>
+
+<ParamField path="--analyze" type="boolean">
+  Add code interpreter for quantitative analysis. Grok writes and executes Python code to compute statistics.
+  
+  **Short form**: `-a`
+  
+  **Default**: `false`
+  
+  **Constraints**:
+  - Cannot be combined with `--extract` (xAI API limitation)
+  
+  **Implementation**: Adds `code_interpreter` tool to the tools array
+  
+  **Use cases**:
+  - Compute engagement statistics
+  - Analyze posting frequency patterns
+  - Calculate trend velocity
+  - Generate quantitative reports from search results
+  
+  **Example**:
+  ```bash
+  --analyze
+  -a  # short form
+  ```
+</ParamField>
+
+<ParamField path="--extract" type="string">
+  Extract structured JSON output using a predefined schema. Automatically selects `grok-4-1-fast-non-reasoning` model.
+  
+  **Short form**: `-x`
+  
+  **Allowed values**: `sentiment`, `narrative`, `timeline`, `profiles`, `claims`
+  
+  **Constraints**:
+  - Cannot be combined with `--analyze`
+  - Automatically overrides `--fast` and `--deep` flags
+  - Forces model to `grok-4-1-fast-non-reasoning` (required for structured output with tools)
+  
+  **Implementation**: 
+  - Sets `text.format` to `json_schema` with strict mode
+  - Disables streaming
+  - Returns guaranteed schema-compliant JSON
+  
+  **Example**:
+  ```bash
+  --extract sentiment
+  --extract timeline
+  -x claims  # short form
+  ```
+  
+  See [Extraction Schemas](/reference/extraction-schemas) for detailed schema definitions.
+</ParamField>
+
+---
+
+## Model Flags
+
+Control which Grok model to use for the query.
+
+<ParamField path="--fast" type="boolean">
+  Use the fast non-reasoning model for quick lookups.
+  
+  **Model**: `grok-4-1-fast-non-reasoning`
+  
+  **Default**: `false`
+  
+  **Use cases**:
+  - Quick lookups ("What did @naval post today?")
+  - Simple quote pulls
+  - When latency matters more than depth
+  
+  **Trade-offs**:
+  - Significantly lower latency and cost
+  - No extended reasoning chain
+  - Good for straightforward queries
+  
+  **Example**:
+  ```bash
+  --fast
+  ```
+</ParamField>
+
+<ParamField path="--deep" type="boolean">
+  Use the flagship Grok model for maximum analytical depth.
+  
+  **Model**: `grok-4-0709`
+  
+  **Default**: `false`
+  
+  **Use cases**:
+  - Complex geopolitical analysis
+  - Dense technical topics
+  - Queries where the reasoning chain itself matters
+  
+  **Trade-offs**:
+  - Higher cost and latency
+  - Maximum analytical capability
+  - Not recommended for routine searches
+  
+  **Example**:
+  ```bash
+  --deep
+  ```
+</ParamField>
+
+<Warning>
+  If neither `--fast` nor `--deep` is specified, the model defaults to `grok-4-1-fast-reasoning` (or the value of `GROK_X_DEFAULT_MODEL` environment variable).
+  
+  When using `--extract`, the model is automatically set to `grok-4-1-fast-non-reasoning` regardless of these flags. This is a requirement of the xAI Responses API for structured output with tools.
+</Warning>
+
+---
+
+## Output Flags
+
+Control how results are displayed.
+
+<ParamField path="--citations" type="boolean">
+  Print all citation URLs after the response text.
+  
+  **Short form**: `-c`
+  
+  **Default**: `false`
+  
+  **Implementation**: Extracts URLs from response `annotations` and prints them in a formatted list
+  
+  **Example output**:
+  ```
+  ── Citations ──
+    [SemiAnalysis] https://x.com/SemiAnalysis/status/189600234000000001
+    [Reuters] https://www.reuters.com/technology/us-extends-chip-export-comment-period-2026-02-28/
+  ```
+  
+  **Example**:
+  ```bash
+  --citations
+  -c  # short form
+  ```
+</ParamField>
+
+<ParamField path="--no-stream" type="boolean">
+  Disable streaming output. Response is buffered and printed all at once.
+  
+  **Default**: `false` (streaming is enabled by default)
+  
+  **Use cases**:
+  - Debugging
+  - When piping output to another command
+  - When streaming causes display issues
+  
+  **Trade-off**: You won't see partial results as they arrive
+  
+  **Example**:
+  ```bash
+  --no-stream
+  ```
+</ParamField>
+
+---
+
+## Flag Combinations
+
+### Valid Combinations
+
+```bash
+# X search + web search + image analysis + citations
+/grok-x "query" --web --images --citations
+
+# Handle filtering + date range + video analysis
+/grok-x "query" --handles elonmusk,xai --from 2026-02-01 --to 2026-03-01 --videos
+
+# Data analysis + web search
+/grok-x "query" --analyze --web
+
+# Structured extraction + handle filtering
+/grok-x "query" --extract sentiment --handles saylor,jack
+```
+
+### Invalid Combinations
+
+<Warning>
+  **The following combinations will fail with an error:**
+  
+  - `--handles` + `--exclude` — xAI API limitation, choose one or the other
+  - `--analyze` + `--extract` — mutually exclusive, choose quantitative analysis or structured output
+</Warning>
+
+### Auto-Overrides
+
+<Warning>
+  **`--extract` automatically overrides model selection:**
+  
+  When using `--extract`, the model is forced to `grok-4-1-fast-non-reasoning` even if you specify `--fast` or `--deep`. This is required by the xAI Responses API for structured output with tools.
+  
+  Example:
+  ```bash
+  # Both of these use grok-4-1-fast-non-reasoning:
+  /grok-x "query" --extract sentiment
+  /grok-x "query" --extract sentiment --deep  # --deep is ignored
+  ```
+</Warning>
+
+---
+
+## Environment Variables
+
+These environment variables affect flag behavior:
+
+<ParamField path="XAI_API_KEY" type="string" required>
+  Your xAI API key. Required for all queries.
+  
+  **Format**: Begins with `xai-`
+  
+  **Configuration**: Set in `~/.claude/settings.json`
+  
+  ```json
+  {
+    "env": {
+      "XAI_API_KEY": "xai-your-key-here"
+    }
+  }
+  ```
+</ParamField>
+
+<ParamField path="GROK_X_DEFAULT_MODEL" type="string">
+  Default model when neither `--fast` nor `--deep` is specified.
+  
+  **Default**: `grok-4-1-fast-reasoning`
+  
+  **Valid values**:
+  - `grok-4-1-fast-reasoning` (recommended default)
+  - `grok-4-1-fast-non-reasoning`
+  - `grok-4-0709`
+  
+  **Configuration**: Set in `~/.claude/settings.json`
+  
+  ```json
+  {
+    "env": {
+      "GROK_X_DEFAULT_MODEL": "grok-4-1-fast-reasoning"
+    }
+  }
+  ```
+</ParamField>

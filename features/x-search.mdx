@@ -1,0 +1,131 @@
+---
+title: X Search
+description: Query real-time X posts with native semantic search, account filtering, and media analysis
+---
+
+## Overview
+
+The `x_search` tool queries the live X platform using Grok's native integration. This is **not keyword scraping** — it is semantic search against real-time X content with access to the full X firehose via the xAI Responses API.
+
+X Search enables:
+- Monitoring specific accounts or excluding certain voices
+- Filtering by date range
+- Analyzing embedded images and videos in posts
+- Real-time intelligence gathering from X conversations
+
+## Available Flags
+
+X Search supports several flags to refine your queries:
+
+<ParamField path="--handles" type="string">
+  Focus on specific accounts. Provide comma-separated handles (max 10). The `@` symbol is optional.
+  
+  **Example:** `--handles saylor,jack` or `--handles @naval,@elonmusk`
+  
+  **Constraint:** Cannot be combined with `--exclude`.
+</ParamField>
+
+<ParamField path="--exclude" type="string">
+  Exclude specific accounts from results. Provide comma-separated handles (max 10).
+  
+  **Example:** `--exclude openai,google`
+  
+  **Constraint:** Cannot be combined with `--handles`.
+</ParamField>
+
+<ParamField path="--from" type="string">
+  Start date for search range in `YYYY-MM-DD` format.
+  
+  **Example:** `--from 2026-02-25`
+</ParamField>
+
+<ParamField path="--to" type="string">
+  End date for search range in `YYYY-MM-DD` format.
+  
+  **Example:** `--to 2026-03-04`
+</ParamField>
+
+<ParamField path="--images" type="boolean">
+  Enable image understanding for posts containing charts, screenshots, memes, and other visual content.
+  
+  **Short form:** `-i`
+  
+  **Example:** `--images` or `-i`
+</ParamField>
+
+<ParamField path="--videos" type="boolean">
+  Enable video understanding for posts containing video content. This is an **X Search exclusive** feature.
+  
+  **Short form:** `-v`
+  
+  **Example:** `--videos` or `-v`
+  
+  **Note:** Only works with `x_search`. Has no effect when combined with `--web` alone.
+</ParamField>
+
+## Examples
+
+### Basic handle monitoring
+
+```bash
+/grok-x "What has @atrupar posted about this week?" --handles atrupar --from 2026-02-25
+```
+
+### Handle monitoring with video analysis
+
+```bash
+/grok-x "What has @atrupar posted about this week?" --handles atrupar --videos --from 2026-02-25
+```
+
+**Output:**
+
+> **@atrupar — Weekly Summary (Feb 25 – Mar 4, 2026)**
+>
+> Aaron Rupar posted 34 times this week, with a sharp focus on Congressional hearings and White House press briefings. Video content accounted for 22 of 34 posts.
+>
+> **Notable posts:**
+>
+> > "Watching the press secretary explain why the administration doesn't consider this a constitutional crisis is genuinely surreal."
+> > — *Feb 26, 2026* · 41K likes · 18K reposts
+>
+> Video frame analysis: 47-second clip from the White House briefing room. Speaker at the podium, four reporters visible with raised hands. Chyron at bottom reads "LIVE: White House Press Briefing." No visual aids or slides present.
+>
+> **Engagement trend:** Repost-to-like ratio averaged 0.44 this week, above his 90-day baseline of 0.31 — indicating unusually high amplification of his content.
+
+### Multiple handles with image analysis
+
+```bash
+/grok-x "Bitcoin sentiment" --handles saylor,jack --images --citations
+```
+
+This query focuses on specific influential accounts, analyzes any charts or visual content in their posts, and includes citation URLs.
+
+### Date range filtering
+
+```bash
+/grok-x "SpaceX coverage" --from 2025-01-01 --to 2025-03-01
+```
+
+### Excluding accounts
+
+```bash
+/grok-x "AI discourse" --exclude openai,google
+```
+
+This searches for AI-related discussions while excluding posts from specified accounts.
+
+<Note>
+  **Constraints:**
+  - `--handles` and `--exclude` accept a maximum of 10 handles each
+  - `--handles` and `--exclude` cannot be combined in the same query
+  - Date values must be in `YYYY-MM-DD` format
+  - `--videos` only works with `x_search` (not with `--web` alone)
+</Note>
+
+## Use Cases
+
+- **Account monitoring:** Track what specific accounts are posting about
+- **Competitor intelligence:** Monitor industry voices and emerging narratives
+- **Event tracking:** Follow real-time reactions to announcements or breaking news
+- **Sentiment analysis:** Understand how X users are reacting to topics
+- **Visual content analysis:** Analyze charts, screenshots, and video clips shared in posts

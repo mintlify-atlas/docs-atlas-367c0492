@@ -1,0 +1,177 @@
+---
+title: 'Data Analysis with Code Interpreter'
+description: 'Perform quantitative analysis on X data using code execution'
+---
+
+## Overview
+
+The `--analyze` flag enables Grok-X to use its `code_interpreter` tool to perform quantitative analysis on X data. This allows for statistical analysis, trend identification, and data aggregation beyond what text summarization alone can provide.
+
+## Use Case
+
+Data analysis is ideal for:
+- Quantifying trends (post volume, engagement patterns, sentiment shifts)
+- Identifying peak activity periods
+- Aggregating mentions by company, topic, or geography
+- Performing statistical analysis on text data from X
+
+## Example: Tech Layoff Announcements
+
+Analyze tech layoff announcements with quantitative data processing:
+
+```bash
+/grok-x "Tech layoff announcements this month" --analyze --from 2026-02-01
+```
+
+**Flags explained:**
+- `--analyze` — Enable code execution for quantitative analysis
+- `--from 2026-02-01` — Start date for the analysis window
+
+### Output
+
+Grok-X searches X, extracts relevant posts, and performs quantitative analysis:
+
+> **Tech Layoff Activity — February 2026 Analysis**
+>
+> Grok searched X for layoff announcements and ran quantitative analysis via code interpreter across 847 relevant posts from Feb 1–Mar 4, 2026.
+>
+> **By company (posts mentioning layoffs):**
+> | Company | Posts | Estimated headcount reduction |
+> |---------|-------|-------------------------------|
+> | Salesforce | 143 | ~1,200 |
+> | Intel | 98 | ~2,800 |
+> | Snap | 67 | ~400 |
+> | Twilio | 54 | ~350 |
+> | Workday | 41 | ~600 |
+>
+> **Posting velocity:** Layoff-related posts peaked on Feb 14 (Valentine's Day — 203 posts in 24h) and again on Feb 28 (end-of-month HR cycles — 178 posts).
+>
+> **Sentiment in layoff posts:** 61% negative/critical, 24% neutral/informational, 15% supportive of company rationale. The supportive cluster skews toward accounts in finance and investor relations.
+>
+> **Geographic signal:** 71% of geo-tagged posts originated from US accounts, 14% from India (Salesforce and Workday have large India engineering hubs), 8% from UK.
+>
+> **Most amplified single post:** An Intel engineer's firsthand account of receiving a severance email with 48 hours notice — 94K likes, 41K reposts, 6.2K replies.
+>
+> **Conclusion:** February 2026 is tracking ~18% above the rolling 6-month average for layoff post volume. The Intel and Salesforce announcements are dominating signal. No signs of a sectoral recovery narrative emerging yet.
+
+## What Code Interpreter Enables
+
+When `--analyze` is used, Grok-X can:
+
+### Aggregate Data
+- Count posts by company, topic, or keyword
+- Group posts by time period (hourly, daily, weekly)
+- Extract entities and count their mentions
+
+### Statistical Analysis
+- Calculate averages, medians, and percentiles
+- Identify outliers and anomalies
+- Compute sentiment distributions
+- Analyze engagement metrics (likes, reposts, replies)
+
+### Pattern Recognition
+- Detect posting velocity spikes
+- Identify temporal patterns (day-of-week, time-of-day)
+- Cluster similar content or accounts
+- Track geographic distributions
+
+### Comparative Analysis
+- Compare current period to historical baselines
+- Benchmark against previous events
+- Identify relative changes in volume or sentiment
+
+## Output Format
+
+Analysis outputs typically include:
+
+### Tables
+Structured data with columns for entities, counts, and metrics:
+
+```markdown
+| Company    | Posts | Estimated headcount reduction |
+|------------|-------|-------------------------------|
+| Salesforce | 143   | ~1,200                        |
+| Intel      | 98    | ~2,800                        |
+```
+
+### Quantitative Findings
+Key statistics extracted from the data:
+- Peak activity periods
+- Percentage breakdowns
+- Comparative metrics
+
+### Notable Examples
+High-impact individual posts identified through engagement analysis
+
+### Conclusions
+Contextualized interpretation of the quantitative findings
+
+## More Analysis Examples
+
+### Sentiment Trend Analysis
+Track how sentiment changes over time:
+
+```bash
+/grok-x "Bitcoin sentiment trends over the last 30 days" --analyze --from 2026-02-01 --to 2026-03-01
+```
+
+### Engagement Pattern Analysis
+Analyze posting and engagement patterns:
+
+```bash
+/grok-x "When does @elonmusk post and what gets the most engagement?" --handles elonmusk --analyze --from 2025-01-01
+```
+
+### Comparative Company Analysis
+Compare discussion volume across companies:
+
+```bash
+/grok-x "Comparison of discussion volume for OpenAI vs Anthropic vs xAI" --analyze --from 2026-01-01
+```
+
+### Geographic Distribution
+Analyze where conversations are happening:
+
+```bash
+/grok-x "Geographic distribution of AI regulation discussions on X" --analyze --web
+```
+
+<Info>
+  The code interpreter has access to Python libraries for data analysis including pandas, numpy, and matplotlib. Complex aggregations and transformations are automatically handled.
+</Info>
+
+## Combining with Other Flags
+
+<CodeGroup>
+```bash Analysis + web search
+/grok-x "Analyze tech IPO sentiment on X and news" --analyze --web --from 2026-01-01
+```
+
+```bash Analysis + specific handles
+/grok-x "Analyze posting patterns for crypto influencers" --analyze --handles coinbase,cz_binance,saylor
+```
+
+```bash Analysis + sentiment extraction
+/grok-x "Bitcoin sentiment with quantitative engagement analysis" --extract sentiment --analyze --from 2026-02-01
+```
+</CodeGroup>
+
+## When to Use --analyze
+
+Use the `--analyze` flag when you need:
+
+- **Quantitative answers** — "How many posts?", "What percentage?", "Which company was mentioned most?"
+- **Trend identification** — "When did activity peak?", "Is sentiment increasing?"
+- **Comparative data** — "How does this compare to last month?", "Which account gets more engagement?"
+- **Aggregated metrics** — "Total engagement", "Average sentiment score", "Median post length"
+
+<Note>
+  Analysis works best with queries that span enough data for statistical significance. For single-day snapshots or very narrow queries, regular search without `--analyze` may be more appropriate.
+</Note>
+
+## Related Flags
+
+- `--from` / `--to` — Define precise time windows for analysis
+- `--handles` — Limit analysis to specific accounts
+- `--web` — Include web sources in the data set
+- `--extract sentiment` — Combine sentiment extraction with quantitative analysis

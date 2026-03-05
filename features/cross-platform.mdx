@@ -1,0 +1,122 @@
+---
+title: Cross-Platform Research
+description: Verify claims and find corroborating sources across X and the open web
+---
+
+## Overview
+
+Cross-platform research combines `x_search` and `web_search` in a single query to give you a complete picture across X and the broader web. This is essential when you need to:
+
+- Verify claims made on X with external sources
+- Find corroborating evidence from news outlets, blogs, and official websites
+- Understand the full context beyond X's echo chamber
+- Cross-reference social sentiment with formal reporting
+
+## How It Works
+
+Add the `--web` flag (or `-w`) to any X Search query:
+
+```bash
+/grok-x "<query>" --web
+```
+
+Grok will:
+1. Search X for real-time posts and discussions
+2. Simultaneously search the open web for related articles, reports, and sources
+3. Synthesize findings from both platforms
+4. Provide citations from both X posts and web URLs
+
+## When to Use Cross-Platform Search
+
+<Steps>
+  <Step title="Fact-checking claims">
+    When X posts reference specific data points, policy changes, or events that need verification from authoritative sources.
+  </Step>
+  
+  <Step title="Understanding context">
+    When you need background information or technical details that may not be fully explained in 280-character posts.
+  </Step>
+  
+  <Step title="Finding primary sources">
+    When X users reference reports, studies, or announcements that you need to read in full.
+  </Step>
+  
+  <Step title="Assessing credibility">
+    When you want to see if mainstream news outlets or official sources corroborate what's being discussed on X.
+  </Step>
+</Steps>
+
+## Real Example: Chip Export Controls
+
+```bash
+/grok-x "Are there signs of a chip export control reversal?" --web --citations
+```
+
+**Output:**
+
+> **Chip Export Control Reversal — Cross-platform Analysis**
+>
+> Signals on X are mixed but trending toward cautious optimism. Several accounts in the semiconductor and policy space are reporting that behind-the-scenes negotiations between Commerce Department officials and industry lobbyists have resumed after a four-month pause.
+>
+> @SemiAnalysis flagged a detail buried in a Commerce Department procedural notice: the comment period for the existing BIS framework has been extended by 60 days, which they interpret as a sign the administration is reconsidering the rule's scope before finalizing it.
+>
+> @KaraSwisher cited a source at a major US fab who described the current rules as "administratively unworkable" and said they expected "significant carve-outs" within the quarter.
+>
+> Web search corroborates the procedural extension. The Reuters piece from Feb 28 confirms the BIS extension is formal, not speculative. The Bloomberg terminal note referenced on X but paywalled is consistent with the fab-side sourcing @KaraSwisher cited.
+>
+> **Assessment:** No formal reversal is imminent, but the procedural extension and resumed lobbying meetings suggest the rule's final form will be materially softer than the November 2025 draft.
+>
+> ---
+>
+> **Citations:**
+> - https://x.com/SemiAnalysis/status/189600234000000001
+> - https://x.com/karaswisher/status/189588901000000001
+> - https://www.reuters.com/technology/us-extends-chip-export-comment-period-2026-02-28/
+> - https://www.bloomberg.com/news/articles/2026-02-27/bis-chip-rule-industry-negotiations
+
+## Understanding Citations
+
+When using `--citations` (or `-c`), Grok provides a complete list of sources at the end of the response:
+
+- **X posts:** Direct links to posts with `https://x.com/` URLs
+- **Web sources:** News articles, blog posts, official documents, and reports
+
+Citations allow you to:
+- Verify claims independently
+- Follow up on specific sources
+- Assess source credibility
+- Share evidence with others
+
+<Note>
+  The `--web` flag can be combined with other X Search flags like `--handles`, `--from`, `--to`, and `--images` to refine your query further.
+</Note>
+
+## Example Combinations
+
+### Cross-platform research with date filtering
+
+```bash
+/grok-x "SpaceX coverage" --web --from 2025-01-01 --to 2025-03-01
+```
+
+Searches both X and the web for SpaceX-related content within a specific date range.
+
+### Cross-platform with image analysis
+
+```bash
+/grok-x "Climate data visualizations" --web --images --citations
+```
+
+Finds posts and web articles containing charts, graphs, and visual data about climate topics.
+
+### Cross-platform with specific handles
+
+```bash
+/grok-x "AI safety concerns" --web --handles ylecun,demishassabis --citations
+```
+
+Combines posts from specific AI researchers with broader web coverage of AI safety.
+
+<Info>
+  Cross-platform research is most valuable when X discussions reference external events, data, or claims that benefit from authoritative verification. Use `--citations` to get the full source list.
+</Info>

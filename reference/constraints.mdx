@@ -1,0 +1,234 @@
+---
+title: Constraints & Limitations
+description: xAI API limitations and constraints that affect grok-x behavior
+---
+
+The following limitations are enforced by the xAI Responses API and cannot be worked around by the `/grok-x` skill.
+
+---
+
+## Flag Combination Constraints
+
+<Warning>
+  **`--handles` and `--exclude` cannot be combined**
+  
+  You must choose either inclusion filtering (`--handles`) or exclusion filtering (`--exclude`), not both.
+  
+  **Why**: This is a limitation of the xAI `x_search` tool API. The API does not support simultaneous `allowed_x_handles` and `excluded_x_handles` parameters.
+  
+  **Error message**:
+  ```
+  Error: --handles and --exclude cannot be combined (xAI API limitation)
+  ```
+  
+  **Workaround**: Choose the approach that results in a smaller filter list. If you want to focus on 3 specific accounts out of a 100-account space, use `--handles`. If you want to exclude 2 spam accounts from a broad search, use `--exclude`.
+</Warning>
+
+**Implementation**: See `grok_x.py:267-269`
+
+---
+
+<Warning>
+  **`--analyze` and `--extract` cannot be combined**
+  
+  You must choose either quantitative analysis (code interpreter) or structured extraction (typed JSON), not both.
+  
+  **Why**: The xAI Responses API does not support `code_interpreter` and structured output (`json_schema` format) in the same request. These are different output modes that are mutually exclusive.
+  
+  **Error message**:
+  ```
+  Error: --analyze and --extract cannot be combined
+  ```
+  
+  **Workaround**: Run two separate queries:
+  1. First, use `--analyze` to get quantitative insights and statistical analysis
+  2. Then, use `--extract` to get structured JSON for the same topic
+  
+  Example:
+  ```bash
+  # Step 1: Get quantitative analysis
+  /grok-x "Tech layoffs this month" --analyze
+  
+  # Step 2: Get structured timeline
+  /grok-x "Tech layoff announcements this month" --extract timeline
+  ```
+</Warning>
+
+**Implementation**: See `grok_x.py:271-273`
+
+---
+
+## Handle and Exclusion Limits
+
+<Warning>
+  **Maximum 10 handles for `--handles` and `--exclude`**
+  
+  Each flag accepts at most 10 comma-separated handles.
+  
+  **Why**: This is enforced by the xAI `x_search` tool. The `allowed_x_handles` and `excluded_x_handles` arrays have a hard limit of 10 items.
+  
+  **Behavior**: The skill automatically truncates handle lists to the first 10 using `args.handles[:10]` and `args.exclude[:10]`. No error is raised — handles beyond the 10th are silently ignored.
+  
+  **Workaround**: If you need to monitor more than 10 accounts, run multiple queries and merge results, or use a broader search query without handle filtering.
+</Warning>
+
+**Implementation**: See `grok_x.py:194-197`, `409-412`
+
+---
+
+## Model Constraints
+
+<Warning>
+  **`--extract` forces `grok-4-1-fast-non-reasoning` model**
+  
+  When using `--extract`, the model is automatically set to `grok-4-1-fast-non-reasoning`, regardless of `--fast` or `--deep` flags.
+  
+  **Why**: The xAI Responses API requires a **non-reasoning Grok 4 variant** for structured output with tools. Reasoning models (`grok-4-1-fast-reasoning`, `grok-4-0709`) do not support the `json_schema` format when tools are enabled.
+  
+  **Behavior**: 
+  - `--extract` alone → uses `grok-4-1-fast-non-reasoning`
+  - `--extract --fast` → still uses `grok-4-1-fast-non-reasoning`
+  - `--extract --deep` → still uses `grok-4-1-fast-non-reasoning` (not `grok-4-0709`)
+  
+  **Workaround**: None. This is a hard API constraint. If you need deep reasoning, use natural language output (no `--extract`) and manually parse the response.
+</Warning>
+
+**Implementation**: See `grok_x.py:221-229`
+
+---
+
+## Media Understanding Constraints
+
+<Warning>
+  **`--videos` only works with `x_search`**
+  
+  Video understanding is exclusive to X Search. It has no effect when used with `--web` alone.
+  
+  **Why**: The xAI `web_search` tool does not support `enable_video_understanding`. This capability is specific to the `x_search` tool, which has access to native X video content.
+  
+  **Behavior**:
+  - `--videos` alone → enables video understanding on `x_search` ✓
+  - `--videos --web` → enables video understanding on `x_search`, but `web_search` ignores it ✓
+  - `--web` without `x_search` → `--videos` has no effect (though this scenario is unlikely since `x_search` is always included)
+  
+  **Workaround**: None needed. `x_search` is always included by default, so `--videos` will always apply to X posts. Just be aware that web search results will not include video analysis.
+</Warning>
+
+**Implementation**: See `grok_x.py:204-206` (video understanding only added to `x_tool`, not `web_tool`)
+
+---
+
+## Date Format Constraints
+
+<Warning>
+  **Date values must use `YYYY-MM-DD` format**
+  
+  The `--from` and `--to` flags require dates in strict ISO 8601 date format.
+  
+  **Why**: The xAI `x_search` tool expects `from_date` and `to_date` in `YYYY-MM-DD` format. Other formats (e.g., `MM/DD/YYYY`, `DD-MM-YYYY`, Unix timestamps) are not supported.
+  
+  **Valid examples**:
+  ```bash
+  --from 2026-02-01
+  --to 2026-03-01
+  ```
+  
+  **Invalid examples**:
+  ```bash
+  --from 02/01/2026      # US format - rejected
+  --from 01-02-2026      # UK format - rejected
+  --from 2026-2-1        # Missing zero-padding - may be rejected
+  --from 1709251200      # Unix timestamp - rejected
+  ```
+  
+  **Workaround**: Always use `YYYY-MM-DD`. If you have dates in other formats, convert them before passing to `/grok-x`.
+</Warning>
+
+**Implementation**: Date values are passed directly to the xAI API without validation in `grok_x.py:198-201`. The API will reject invalid formats.
+
+---
+
+## API Key Requirements
+
+<Warning>
+  **`XAI_API_KEY` environment variable is required**
+  
+  All queries require a valid xAI API key set in the environment.
+  
+  **Why**: The `/grok-x` skill uses the xAI Responses API (`https://api.x.ai/v1`), which requires authentication.
+  
+  **Error message** (if key is missing):
+  ```
+  Error: XAI_API_KEY environment variable not set
+  Get a key at: https://console.x.ai/
+  ```
+  
+  **Configuration**: Set in `~/.claude/settings.json`:
+  ```json
+  {
+    "env": {
+      "XAI_API_KEY": "xai-your-key-here"
+    }
+  }
+  ```
+  
+  **Key format**: xAI API keys always begin with `xai-`
+  
+  **Where to get a key**: [console.x.ai](https://console.x.ai) → API Keys → Create key
+</Warning>
+
+**Implementation**: See `grok_x.py:261-265`
+
+---
+
+## What Is NOT Constrained
+
+The following are **not** limitations:
+
+✅ **Number of results**: No hard limit on how many posts Grok searches. The API returns as many relevant results as it finds.
+
+✅ **Query length**: No documented character limit for the query string.
+
+✅ **Image understanding with `--web`**: `--images` works with both `x_search` and `web_search`. Unlike `--videos`, image understanding is supported across both tools.
+
+✅ **Combining `--web` and `--analyze`**: These work together. You can use web search + code interpreter in the same query.
+
+✅ **Combining `--handles` with `--from`/`--to`**: Date filtering and handle filtering can be used together.
+
+✅ **Using `--fast` or `--deep` without extraction**: Model selection flags work independently when not using `--extract`.
+
+---
+
+## Error Messages Reference
+
+When you hit a constraint, you'll see one of these error messages:
+
+| Error Message | Cause | Flag Combination |
+|---------------|-------|------------------|
+| `Error: XAI_API_KEY environment variable not set` | Missing API key | N/A |
+| `Error: --handles and --exclude cannot be combined (xAI API limitation)` | Using both handle filters | `--handles` + `--exclude` |
+| `Error: --analyze and --extract cannot be combined` | Using both output modes | `--analyze` + `--extract` |
+
+These errors are raised in `grok_x.py` before making the API request, so you won't be charged for failed queries.
+
+---
+
+## Reporting Issues
+
+If you encounter behavior that seems like a constraint but is not documented here:
+
+1. Check that you're using the latest version of the skill
+2. Verify your xAI API key is valid at [console.x.ai](https://console.x.ai)
+3. Test with the xAI API directly to confirm whether it's a skill issue or an API limitation
+4. Open an issue at the grok-x repository with:
+   - The exact command you ran
+   - The full error message
+   - Your `grok_x.py` version (check the shebang line)
+
+---
+
+## Related Documentation
+
+- [Command Flags Reference](/reference/command-flags) — Full flag documentation
+- [Extraction Schemas](/reference/extraction-schemas) — Structured output schemas
+- [xAI Responses API Documentation](https://docs.x.ai/) — Official xAI API docs

@@ -1,0 +1,46 @@
+---
+title: "Introduction"
+description: "Real-time X Intelligence for Claude Code using Grok's native x_search tool"
+---
+
+## What is Grok-X?
+
+Grok-X brings real-time X (Twitter) intelligence directly into Claude Code. Search, monitor, analyze, and extract structured intelligence from X using Grok's native `x_search` tool — no browser required, no scraping. Access the full X firehose via the xAI Responses API.
+
+## Key Capabilities
+
+Grok-X provides four distinct modes of operation:
+
+<CardGroup cols={2}>
+  <Card title="X Search" icon="magnifying-glass">
+    Grok's native `x_search` tool queries the live X platform. Monitor specific accounts, filter by date range, and analyze embedded images and videos in posts. This is not keyword scraping — it is semantic search against real-time X content.
+  </Card>
+  
+  <Card title="Cross-platform Research" icon="globe">
+    Add `--web` to run `web_search` alongside `x_search`. Verify claims, find corroborating sources, and get a full picture across X and the open web in a single query.
+  </Card>
+  
+  <Card title="Data Analysis" icon="chart-line">
+    Add `--analyze` to activate `code_interpreter`. Grok writes and executes code to compute engagement statistics, posting frequency, trend velocity, and other quantitative signals from search results.
+  </Card>
+  
+  <Card title="Structured Extraction" icon="code">
+    Add `--extract SCHEMA` to get typed JSON output. Five built-in schemas cover sentiment scoring, narrative mapping, timeline construction, account profiling, and claim attribution. Useful for piping results into downstream systems.
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+Before installing Grok-X, ensure you have:
+
+- [Claude Code](https://claude.ai/code) installed and authenticated
+- Python 3.9 or later
+- An xAI API key (see [Configuration](/configuration#getting-an-xai-api-key))
+
+<Note>
+  xAI API keys begin with `xai-` and can be obtained from [console.x.ai](https://console.x.ai)
+</Note>
+
+## Next Steps
+
+Ready to get started? Head over to the [Installation](/installation) guide to set up Grok-X in your Claude Code environment.

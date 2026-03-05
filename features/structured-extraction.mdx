@@ -1,0 +1,422 @@
+---
+title: Structured Extraction
+description: Extract typed JSON output from X posts using five built-in schemas
+---
+
+## Overview
+
+The `--extract` flag generates structured JSON output from X search results. This is essential when you need to:
+
+- Pipe results into downstream systems
+- Store data in databases with consistent schemas
+- Build automated monitoring pipelines
+- Integrate X intelligence with other tools
+
+Grok uses `grok-4-1-fast-non-reasoning` with strict JSON schema enforcement to guarantee typed output.
+
+## How It Works
+
+```bash
+/grok-x "<query>" --extract SCHEMA
+```
+
+Grok will:
+1. Search X for relevant posts using `x_search`
+2. Extract and structure data according to the specified schema
+3. Return valid JSON that matches the schema exactly
+
+<Info>
+  The `--extract` flag automatically selects `grok-4-1-fast-non-reasoning` regardless of other model flags. Structured output with tools requires a non-reasoning model.
+</Info>
+
+## Available Schemas
+
+Five built-in schemas cover common X intelligence use cases:
+
+<Tabs>
+  <Tab title="sentiment">
+    **Sentiment Analysis**
+    
+    Returns overall sentiment, sentiment score, key claims, and notable accounts.
+    
+    **Use for:** Understanding the mood and dominant perspectives around a topic.
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being analyzed
+    </ResponseField>
+    
+    <ResponseField name="timeframe" type="string" required>
+      The time period covered
+    </ResponseField>
+    
+    <ResponseField name="overall_sentiment" type="string" required>
+      Text description of the overall sentiment (e.g., "cautiously bullish", "strongly negative")
+    </ResponseField>
+    
+    <ResponseField name="sentiment_score" type="number" required>
+      Numeric score from -1.0 (very bearish) to 1.0 (very bullish)
+    </ResponseField>
+    
+    <ResponseField name="key_claims" type="array" required>
+      Array of key claims with claim text, handle, sentiment, and URL
+      
+      <Expandable title="Claim object structure">
+        <ResponseField name="claim" type="string" required>
+          The claim text
+        </ResponseField>
+        
+        <ResponseField name="handle" type="string" required>
+          The X handle making the claim
+        </ResponseField>
+        
+        <ResponseField name="sentiment" type="string" required>
+          Sentiment of this specific claim
+        </ResponseField>
+        
+        <ResponseField name="url" type="string" required>
+          Link to the original post
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="notable_accounts" type="array" required>
+      List of notable account handles participating in the discussion
+    </ResponseField>
+    
+    <ResponseField name="visual_content_summary" type="string" required>
+      Summary of any visual content (images/videos) found in posts
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      Overall summary of the sentiment analysis
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="narrative">
+    **Narrative Mapping**
+    
+    Returns dominant narratives, emerging narratives, and counter-narratives.
+    
+    **Use for:** Understanding competing storylines and how different groups frame an issue.
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being analyzed
+    </ResponseField>
+    
+    <ResponseField name="dominant_narratives" type="array" required>
+      Array of dominant narratives with details
+      
+      <Expandable title="Narrative object structure">
+        <ResponseField name="narrative" type="string" required>
+          The narrative text
+        </ResponseField>
+        
+        <ResponseField name="sentiment" type="string" required>
+          Sentiment of this narrative
+        </ResponseField>
+        
+        <ResponseField name="key_accounts" type="array" required>
+          Array of key account handles pushing this narrative
+        </ResponseField>
+        
+        <ResponseField name="evidence" type="string" required>
+          Supporting evidence for the narrative
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="emerging_narratives" type="array" required>
+      Array of emerging narratives (strings)
+    </ResponseField>
+    
+    <ResponseField name="counter_narratives" type="array" required>
+      Array of counter-narratives (strings)
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      Overall summary of the narrative landscape
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="timeline">
+    **Timeline Construction**
+    
+    Returns chronological events with date, source, significance, and URL.
+    
+    **Use for:** Building timelines of announcements, events, or developments.
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being tracked
+    </ResponseField>
+    
+    <ResponseField name="events" type="array" required>
+      Array of events in chronological order
+      
+      <Expandable title="Event object structure">
+        <ResponseField name="date" type="string" required>
+          Date of the event (YYYY-MM-DD format)
+        </ResponseField>
+        
+        <ResponseField name="event" type="string" required>
+          Description of what happened
+        </ResponseField>
+        
+        <ResponseField name="source_handle" type="string" required>
+          The X handle that announced or discussed the event
+        </ResponseField>
+        
+        <ResponseField name="significance" type="string" required>
+          Assessment of the event's significance
+        </ResponseField>
+        
+        <ResponseField name="url" type="string" required>
+          Link to the source post
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      Overall summary of the timeline
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="profiles">
+    **Account Profiling**
+    
+    Returns detailed profiles for each account: posting style, main topics, key positions, recent notable posts.
+    
+    **Use for:** Understanding who the key voices are on a topic and their perspectives.
+    
+    <ResponseField name="profiles" type="array" required>
+      Array of account profiles
+      
+      <Expandable title="Profile object structure">
+        <ResponseField name="handle" type="string" required>
+          The X handle
+        </ResponseField>
+        
+        <ResponseField name="posting_style" type="string" required>
+          Description of their posting style
+        </ResponseField>
+        
+        <ResponseField name="main_topics" type="array" required>
+          Array of main topics they post about
+        </ResponseField>
+        
+        <ResponseField name="key_positions" type="array" required>
+          Array of their key positions or viewpoints
+        </ResponseField>
+        
+        <ResponseField name="recent_notable_posts" type="array" required>
+          Array of recent notable posts (strings)
+        </ResponseField>
+        
+        <ResponseField name="influence_assessment" type="string" required>
+          Assessment of their influence level
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      Overall summary of the account profiles
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="claims">
+    **Claim Attribution**
+    
+    Returns individual claims with attribution, claim type, verifiability flag, context, and URL.
+    
+    **Use for:** Tracking specific claims, fact-checking, and understanding what different accounts are asserting.
+    
+    <ResponseField name="topic" type="string" required>
+      The topic being analyzed
+    </ResponseField>
+    
+    <ResponseField name="claims" type="array" required>
+      Array of claims with attribution details
+      
+      <Expandable title="Claim object structure">
+        <ResponseField name="claim" type="string" required>
+          The claim text
+        </ResponseField>
+        
+        <ResponseField name="attributed_to" type="string" required>
+          The X handle making the claim
+        </ResponseField>
+        
+        <ResponseField name="claim_type" type="string" required>
+          Type: factual, opinion, prediction, or allegation
+        </ResponseField>
+        
+        <ResponseField name="verifiable" type="boolean" required>
+          Whether the claim is verifiable
+        </ResponseField>
+        
+        <ResponseField name="context" type="string" required>
+          Context around the claim
+        </ResponseField>
+        
+        <ResponseField name="url" type="string" required>
+          Link to the original post
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="summary" type="string" required>
+      Overall summary of the claims
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+## Real Examples
+
+### Sentiment Extraction: Bitcoin
+
+```bash
+/grok-x "Bitcoin sentiment on X right now" --extract sentiment
+```
+
+**Output:**
+
+```json
+{
+  "overall_sentiment": "cautiously bullish",
+  "sentiment_score": 0.41,
+  "key_claims": [
+    {
+      "claim": "The ETF inflow numbers suggest institutional accumulation is quietly accelerating despite retail uncertainty.",
+      "frequency": "high",
+      "representative_handle": "woonomic"
+    },
+    {
+      "claim": "The halving is already priced in. Anyone expecting a 2020-style run is going to be disappointed.",
+      "frequency": "moderate",
+      "representative_handle": "PeterLBrandt"
+    },
+    {
+      "claim": "On-chain data shows long-term holders are not selling. Diamond hands thesis remains intact.",
+      "frequency": "high",
+      "representative_handle": "glassnodealerts"
+    },
+    {
+      "claim": "Macro headwinds from Fed policy are suppressing the ceiling. $120K is the new realistic target, not $250K.",
+      "frequency": "moderate",
+      "representative_handle": "RaoulGMI"
+    },
+    {
+      "claim": "Altcoins are bleeding against BTC. Capital is rotating into Bitcoin dominance as a flight to safety.",
+      "frequency": "moderate",
+      "representative_handle": "CryptoCobain"
+    }
+  ],
+  "notable_accounts": [
+    { "handle": "woonomic", "stance": "bullish", "influence_tier": "high" },
+    { "handle": "PeterLBrandt", "stance": "skeptical", "influence_tier": "high" },
+    { "handle": "saylor", "stance": "strongly bullish", "influence_tier": "very high" },
+    { "handle": "PrestonPysh", "stance": "bullish", "influence_tier": "medium" }
+  ]
+}
+```
+
+### Timeline Extraction: xAI Announcements
+
+```bash
+/grok-x "xAI product announcements in the last 90 days" --extract timeline --from 2025-12-01
+```
+
+**Output:**
+
+```json
+{
+  "events": [
+    {
+      "date": "2025-12-11",
+      "source_handle": "xai",
+      "event": "Grok 3 released to Premium+ subscribers with significantly improved reasoning and a new 'Think' mode for extended chain-of-thought responses.",
+      "significance": "major product launch",
+      "url": "https://x.com/xai/status/186634291000000001"
+    },
+    {
+      "date": "2025-12-19",
+      "source_handle": "elonmusk",
+      "event": "Announced that Grok will be integrated directly into Tesla vehicles, enabling voice-driven AI assistance using real-time X data.",
+      "significance": "major partnership / product expansion",
+      "url": "https://x.com/elonmusk/status/186712940000000001"
+    },
+    {
+      "date": "2026-01-08",
+      "source_handle": "xai",
+      "event": "Aurora image generation model launched inside Grok on X. Available to all Premium subscribers.",
+      "significance": "new capability launch",
+      "url": "https://x.com/xai/status/187700120000000001"
+    },
+    {
+      "date": "2026-02-03",
+      "source_handle": "xai",
+      "event": "Grok API updated with Responses API (/v1/responses) support, enabling native x_search, web_search, and code_interpreter tool use.",
+      "significance": "developer platform update",
+      "url": "https://x.com/xai/status/188820340000000001"
+    },
+    {
+      "date": "2026-02-27",
+      "source_handle": "xai",
+      "event": "Grok-4 model family announced. Grok-4-0709 positioned as flagship reasoning model; fast variants released for latency-sensitive workloads.",
+      "significance": "major model release",
+      "url": "https://x.com/xai/status/189731500000000001"
+    }
+  ]
+}
+```
+
+## Combining with Other Flags
+
+The `--extract` flag works with:
+
+- `--handles` / `--exclude`: Focus extraction on specific accounts
+- `--from` / `--to`: Extract data from specific time periods
+- `--images` / `--videos`: Include media-rich posts in extraction
+
+### Example: Timeline from specific account
+
+```bash
+/grok-x "xAI announcements" --extract timeline --handles xai --from 2025-12-01
+```
+
+### Example: Sentiment with date range
+
+```bash
+/grok-x "Crypto market mood" --extract sentiment --from 2026-02-01
+```
+
+### Example: Narrative excluding specific accounts
+
+```bash
+/grok-x "AI discourse" --extract narrative --exclude openai,google
+```
+
+<Note>
+  **Constraints:**
+  - `--extract` automatically uses `grok-4-1-fast-non-reasoning` (cannot be overridden)
+  - `--extract` and `--analyze` cannot be combined
+  - All schemas return strict JSON that matches the defined structure exactly
+</Note>
+
+## Schema Selection Guide
+
+| Schema | Best For |
+|--------|----------|
+| `sentiment` | Understanding overall mood and key perspectives |
+| `narrative` | Mapping competing storylines and framing |
+| `timeline` | Tracking chronological developments |
+| `profiles` | Profiling key accounts and their positions |
+| `claims` | Attribution and fact-checking specific assertions |
+
+## Use Cases
+
+- **API integration:** Pipe structured JSON into your own systems
+- **Database storage:** Store X intelligence with consistent schemas
+- **Monitoring pipelines:** Automate regular extraction for tracking
+- **Fact-checking workflows:** Extract claims for verification
+- **Competitive intelligence:** Build account profiles for competitor tracking
+- **Event detection:** Timeline extraction for product launches or announcements

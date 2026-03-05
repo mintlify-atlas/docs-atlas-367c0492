@@ -1,0 +1,365 @@
+---
+title: 'Tool Combinations'
+description: 'Combine x_search with web_search, code_interpreter, and structured extraction'
+icon: 'wand-magic-sparkles'
+---
+
+## Overview
+
+`/grok-x` supports six distinct modes by combining Grok's native tools. Each mode activates different capabilities:
+
+| Mode | Tools activated | Best for |
+|------|----------------|----------|
+| **Default** | `x_search` | General X research |
+| **`--web`** | `x_search` + `web_search` | Cross-platform verification |
+| **`--analyze`** | `x_search` + `code_interpreter` | Trend stats, frequency analysis, engagement |
+| **`--extract SCHEMA`** | `x_search` + structured output | Typed JSON extraction |
+| **`--images`** | Adds `enable_image_understanding` | Charts, screenshots, memes in posts |
+| **`--videos`** | Adds `enable_video_understanding` | Videos in posts (X Search exclusive) |
+
+<Note>
+  All modes can be combined with date filters (`--from`, `--to`) and account filters (`--handles`, `--exclude`).
+</Note>
+
+---
+
+## Mode Reference
+
+<Tabs>
+  <Tab title="Default (x_search)">
+    ### Default Mode
+    
+    Uses Grok's native `x_search` tool to query the live X platform.
+    
+    **When to use:**
+    - General X research
+    - Monitoring specific topics or accounts
+    - Quick sentiment checks
+    
+    **Example:**
+    ```bash
+    /grok-x "What is happening with AI regulation on X?"
+    ```
+    
+    **Output format:** Streaming text analysis with inline citations.
+    
+    <Tip>
+      This is the fastest mode. No additional tools means lower latency and cost.
+    </Tip>
+  </Tab>
+  
+  <Tab title="--web">
+    ### Cross-Platform Research
+    
+    Adds `web_search` alongside `x_search` to verify claims and find corroborating sources across X and the open web.
+    
+    **When to use:**
+    - Fact-checking X claims against external sources
+    - Finding context beyond X
+    - Investigating breaking news
+    
+    **Example:**
+    ```bash
+    /grok-x "Are there signs of a chip export control reversal?" --web --citations
+    ```
+    
+    **Output:**
+    
+    > **Chip Export Control Reversal — Cross-platform Analysis**
+    >
+    > Signals on X are mixed but trending toward cautious optimism. Several accounts in the semiconductor and policy space are reporting that behind-the-scenes negotiations between Commerce Department officials and industry lobbyists have resumed after a four-month pause.
+    >
+    > @SemiAnalysis flagged a detail buried in a Commerce Department procedural notice: the comment period for the existing BIS framework has been extended by 60 days, which they interpret as a sign the administration is reconsidering the rule's scope before finalizing it.
+    >
+    > @KaraSwisher cited a source at a major US fab who described the current rules as "administratively unworkable" and said they expected "significant carve-outs" within the quarter.
+    >
+    > Web search corroborates the procedural extension. The Reuters piece from Feb 28 confirms the BIS extension is formal, not speculative. The Bloomberg terminal note referenced on X but paywalled is consistent with the fab-side sourcing @KaraSwisher cited.
+    >
+    > **Assessment:** No formal reversal is imminent, but the procedural extension and resumed lobbying meetings suggest the rule's final form will be materially softer than the November 2025 draft.
+    >
+    > ---
+    >
+    > **Citations:**
+    > - https://x.com/SemiAnalysis/status/189600234000000001
+    > - https://x.com/karaswisher/status/189588901000000001
+    > - https://www.reuters.com/technology/us-extends-chip-export-comment-period-2026-02-28/
+    > - https://www.bloomberg.com/news/articles/2026-02-27/bis-chip-rule-industry-negotiations
+    
+    <Info>
+      Always use `--citations` with `--web` to separate X sources from web sources.
+    </Info>
+  </Tab>
+  
+  <Tab title="--analyze">
+    ### Data Analysis Mode
+    
+    Adds `code_interpreter` to run Python code for quantitative analysis: engagement stats, posting frequency, trend velocity, and more.
+    
+    **When to use:**
+    - Computing engagement metrics
+    - Analyzing posting patterns over time
+    - Identifying statistical trends
+    - Comparing account activity
+    
+    **Example:**
+    ```bash
+    /grok-x "Tech layoff announcements this month" --analyze --from 2026-02-01
+    ```
+    
+    **Output:**
+    
+    > **Tech Layoff Activity — February 2026 Analysis**
+    >
+    > Grok searched X for layoff announcements and ran quantitative analysis via code interpreter across 847 relevant posts from Feb 1–Mar 4, 2026.
+    >
+    > **By company (posts mentioning layoffs):**
+    > | Company | Posts | Estimated headcount reduction |
+    > |---------|-------|-------------------------------|
+    > | Salesforce | 143 | ~1,200 |
+    > | Intel | 98 | ~2,800 |
+    > | Snap | 67 | ~400 |
+    > | Twilio | 54 | ~350 |
+    > | Workday | 41 | ~600 |
+    >
+    > **Posting velocity:** Layoff-related posts peaked on Feb 14 (Valentine's Day — 203 posts in 24h) and again on Feb 28 (end-of-month HR cycles — 178 posts).
+    >
+    > **Sentiment in layoff posts:** 61% negative/critical, 24% neutral/informational, 15% supportive of company rationale. The supportive cluster skews toward accounts in finance and investor relations.
+    >
+    > **Geographic signal:** 71% of geo-tagged posts originated from US accounts, 14% from India (Salesforce and Workday have large India engineering hubs), 8% from UK.
+    >
+    > **Most amplified single post:** An Intel engineer's firsthand account of receiving a severance email with 48 hours notice — 94K likes, 41K reposts, 6.2K replies.
+    >
+    > **Conclusion:** February 2026 is tracking ~18% above the rolling 6-month average for layoff post volume. The Intel and Salesforce announcements are dominating signal. No signs of a sectoral recovery narrative emerging yet.
+    
+    <Warning>
+      **Cannot combine `--analyze` and `--extract`** — choose quantitative analysis or structured JSON output, not both.
+    </Warning>
+  </Tab>
+  
+  <Tab title="--extract">
+    ### Structured Extraction
+    
+    Outputs **typed JSON** instead of text. Five built-in schemas cover common intelligence use cases.
+    
+    **Available schemas:**
+    - `sentiment` — Overall sentiment, score (-1 to 1), key claims, notable accounts
+    - `narrative` — Dominant narratives, emerging narratives, counter-narratives
+    - `timeline` — Events with date, source_handle, significance, URL
+    - `profiles` — Per-handle posting style, topics, positions, notable posts
+    - `claims` — Claims with attribution, type, verifiable flag, context, URL
+    
+    **Example: Sentiment Extraction**
+    
+    ```bash
+    /grok-x "Bitcoin sentiment on X right now" --extract sentiment
+    ```
+    
+    **Output:**
+    
+    ```json
+    {
+      "overall_sentiment": "cautiously bullish",
+      "sentiment_score": 0.41,
+      "key_claims": [
+        {
+          "claim": "The ETF inflow numbers suggest institutional accumulation is quietly accelerating despite retail uncertainty.",
+          "frequency": "high",
+          "representative_handle": "woonomic"
+        },
+        {
+          "claim": "The halving is already priced in. Anyone expecting a 2020-style run is going to be disappointed.",
+          "frequency": "moderate",
+          "representative_handle": "PeterLBrandt"
+        },
+        {
+          "claim": "On-chain data shows long-term holders are not selling. Diamond hands thesis remains intact.",
+          "frequency": "high",
+          "representative_handle": "glassnodealerts"
+        },
+        {
+          "claim": "Macro headwinds from Fed policy are suppressing the ceiling. $120K is the new realistic target, not $250K.",
+          "frequency": "moderate",
+          "representative_handle": "RaoulGMI"
+        },
+        {
+          "claim": "Altcoins are bleeding against BTC. Capital is rotating into Bitcoin dominance as a flight to safety.",
+          "frequency": "moderate",
+          "representative_handle": "CryptoCobain"
+        }
+      ],
+      "notable_accounts": [
+        { "handle": "woonomic", "stance": "bullish", "influence_tier": "high" },
+        { "handle": "PeterLBrandt", "stance": "skeptical", "influence_tier": "high" },
+        { "handle": "saylor", "stance": "strongly bullish", "influence_tier": "very high" },
+        { "handle": "PrestonPysh", "stance": "bullish", "influence_tier": "medium" }
+      ]
+    }
+    ```
+    
+    **Example: Timeline Extraction**
+    
+    ```bash
+    /grok-x "xAI product announcements in the last 90 days" --extract timeline --from 2025-12-01
+    ```
+    
+    **Output:**
+    
+    ```json
+    {
+      "events": [
+        {
+          "date": "2025-12-11",
+          "source_handle": "xai",
+          "event": "Grok 3 released to Premium+ subscribers with significantly improved reasoning and a new 'Think' mode for extended chain-of-thought responses.",
+          "significance": "major product launch",
+          "url": "https://x.com/xai/status/186634291000000001"
+        },
+        {
+          "date": "2025-12-19",
+          "source_handle": "elonmusk",
+          "event": "Announced that Grok will be integrated directly into Tesla vehicles, enabling voice-driven AI assistance using real-time X data.",
+          "significance": "major partnership / product expansion",
+          "url": "https://x.com/elonmusk/status/186712940000000001"
+        },
+        {
+          "date": "2026-01-08",
+          "source_handle": "xai",
+          "event": "Aurora image generation model launched inside Grok on X. Available to all Premium subscribers.",
+          "significance": "new capability launch",
+          "url": "https://x.com/xai/status/187700120000000001"
+        },
+        {
+          "date": "2026-02-03",
+          "source_handle": "xai",
+          "event": "Grok API updated with Responses API (/v1/responses) support, enabling native x_search, web_search, and code_interpreter tool use.",
+          "significance": "developer platform update",
+          "url": "https://x.com/xai/status/188820340000000001"
+        },
+        {
+          "date": "2026-02-27",
+          "source_handle": "xai",
+          "event": "Grok-4 model family announced. Grok-4-0709 positioned as flagship reasoning model; fast variants released for latency-sensitive workloads.",
+          "significance": "major model release",
+          "url": "https://x.com/xai/status/189731500000000001"
+        }
+      ]
+    }
+    ```
+    
+    <Info>
+      `--extract` automatically selects `grok-4-1-fast-non-reasoning` regardless of `--fast` or `--deep`. Structured output with tools requires a non-reasoning model.
+    </Info>
+  </Tab>
+  
+  <Tab title="--images">
+    ### Image Understanding
+    
+    Adds `enable_image_understanding` to analyze images embedded in posts: charts, screenshots, memes, infographics.
+    
+    **When to use:**
+    - Posts contain data visualizations
+    - Meme culture analysis
+    - Screenshot-based claims
+    
+    **Example:**
+    
+    ```bash
+    /grok-x "Bitcoin sentiment" --handles saylor,jack --images --citations
+    ```
+    
+    **Output:** Grok describes image content inline with text analysis.
+    
+    <Tip>
+      Works with both `x_search` and `web_search`. Combine with `--web` to analyze images from both platforms.
+    </Tip>
+  </Tab>
+  
+  <Tab title="--videos">
+    ### Video Understanding
+    
+    Adds `enable_video_understanding` to analyze video content in X posts. **X Search exclusive** — does not work with `web_search` alone.
+    
+    **When to use:**
+    - Posts contain press conference clips
+    - Hearing or event footage
+    - Interview segments
+    
+    **Example:**
+    
+    ```bash
+    /grok-x "What has @atrupar posted about this week?" --handles atrupar --videos --from 2026-02-25
+    ```
+    
+    **Output:**
+    
+    > **@atrupar — Weekly Summary (Feb 25 – Mar 4, 2026)**
+    >
+    > Aaron Rupar posted 34 times this week, with a sharp focus on Congressional hearings and White House press briefings. Video content accounted for 22 of 34 posts.
+    >
+    > **Notable posts:**
+    >
+    > > "Watching the press secretary explain why the administration doesn't consider this a constitutional crisis is genuinely surreal."
+    > > — *Feb 26, 2026* · 41K likes · 18K reposts
+    >
+    > Video frame analysis: 47-second clip from the White House briefing room. Speaker at the podium, four reporters visible with raised hands. Chyron at bottom reads "LIVE: White House Press Briefing." No visual aids or slides present.
+    >
+    > > "This exchange between Sen. Warren and the Treasury Secretary is the most direct questioning I've seen in months."
+    > > — *Feb 28, 2026* · 67K likes · 29K reposts
+    >
+    > Video frame analysis: Senate hearing chamber. Two individuals visible — one at the witness table, one at the dais. Caption overlay from C-SPAN feed. Timestamp shows 2h 14m into the hearing. Body language of the witness shows visible tension.
+    >
+    > **Engagement trend:** Repost-to-like ratio averaged 0.44 this week, above his 90-day baseline of 0.31 — indicating unusually high amplification of his content.
+    
+    <Warning>
+      `--videos` only works with `x_search`. It has no effect when combined with `--web` alone.
+    </Warning>
+  </Tab>
+</Tabs>
+
+---
+
+## Combining Multiple Modes
+
+### Web + Images
+
+Cross-platform research with visual content analysis:
+
+```bash
+/grok-x "SpaceX Starship latest" --web --images --from 2025-02-01 --citations
+```
+
+### Analyze + Images
+
+Quantitative analysis with visual understanding:
+
+```bash
+/grok-x "Tesla discussion" --analyze --videos
+```
+
+### Extract + Web
+
+Structured extraction with cross-platform verification:
+
+```bash
+/grok-x "AI safety discourse on X" --extract narrative --web
+```
+
+---
+
+## Constraints
+
+<Warning>
+  The following combinations are **not allowed** due to xAI API limitations:
+  
+  - **`--analyze` + `--extract`** — Choose one or the other
+  - **`--handles` + `--exclude`** — Cannot filter and exclude simultaneously
+  - **`--videos`** only works with `x_search`, not `web_search` alone
+</Warning>
+
+---
+
+## Next Steps
+
+<Card title="Model Selection" icon="brain" href="/usage/model-selection">
+  Learn when to use `--fast`, `--deep`, or the default model for different query types
+</Card>

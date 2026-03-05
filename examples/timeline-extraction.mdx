@@ -1,0 +1,145 @@
+---
+title: 'Timeline Extraction'
+description: 'Build chronological event timelines from X posts'
+---
+
+## Overview
+
+The `--extract timeline` flag generates structured chronological timelines of events, announcements, or developments. This is useful for tracking product launches, policy changes, or any time-sensitive developments discussed on X.
+
+## Use Case
+
+Timeline extraction is ideal for:
+- Tracking product announcements and releases
+- Building event chronologies for research
+- Monitoring regulatory or policy changes over time
+- Understanding the sequence of developments in fast-moving situations
+
+## Example: xAI Product Announcements
+
+Extract a timeline of xAI's product announcements over the last 90 days:
+
+```bash
+/grok-x "xAI product announcements in the last 90 days" --extract timeline --from 2025-12-01
+```
+
+**Flags explained:**
+- `--extract timeline` — Structure output as a chronological event timeline
+- `--from 2025-12-01` — Define the start of the search window
+
+### Output
+
+Grok-X returns a structured JSON timeline:
+
+```json
+{
+  "events": [
+    {
+      "date": "2025-12-11",
+      "source_handle": "xai",
+      "event": "Grok 3 released to Premium+ subscribers with significantly improved reasoning and a new 'Think' mode for extended chain-of-thought responses.",
+      "significance": "major product launch",
+      "url": "https://x.com/xai/status/186634291000000001"
+    },
+    {
+      "date": "2025-12-19",
+      "source_handle": "elonmusk",
+      "event": "Announced that Grok will be integrated directly into Tesla vehicles, enabling voice-driven AI assistance using real-time X data.",
+      "significance": "major partnership / product expansion",
+      "url": "https://x.com/elonmusk/status/186712940000000001"
+    },
+    {
+      "date": "2026-01-08",
+      "source_handle": "xai",
+      "event": "Aurora image generation model launched inside Grok on X. Available to all Premium subscribers.",
+      "significance": "new capability launch",
+      "url": "https://x.com/xai/status/187700120000000001"
+    },
+    {
+      "date": "2026-02-03",
+      "source_handle": "xai",
+      "event": "Grok API updated with Responses API (/v1/responses) support, enabling native x_search, web_search, and code_interpreter tool use.",
+      "significance": "developer platform update",
+      "url": "https://x.com/xai/status/188820340000000001"
+    },
+    {
+      "date": "2026-02-27",
+      "source_handle": "xai",
+      "event": "Grok-4 model family announced. Grok-4-0709 positioned as flagship reasoning model; fast variants released for latency-sensitive workloads.",
+      "significance": "major model release",
+      "url": "https://x.com/xai/status/189731500000000001"
+    }
+  ]
+}
+```
+
+## Output Structure
+
+Each event in the timeline contains:
+
+- **`date`** — ISO 8601 formatted date (YYYY-MM-DD)
+- **`source_handle`** — The X account that made the announcement
+- **`event`** — A concise description of what happened
+- **`significance`** — Categorization of the event's importance:
+  - "major product launch"
+  - "major partnership / product expansion"
+  - "new capability launch"
+  - "developer platform update"
+  - "major model release"
+  - "minor update"
+  - "clarification"
+- **`url`** — Direct link to the source post for verification
+
+<Info>
+  Events are automatically sorted chronologically. The `significance` field is determined by analyzing the content, engagement, and context of the announcement.
+</Info>
+
+## Use Cases in Action
+
+### Product Research
+Use timeline extraction to understand a company's release cadence and product strategy:
+
+```bash
+/grok-x "Anthropic product announcements" --extract timeline --from 2025-01-01
+```
+
+### Policy Tracking
+Monitor regulatory changes and policy announcements:
+
+```bash
+/grok-x "EU AI Act implementation milestones" --extract timeline --from 2024-06-01 --web
+```
+
+### Incident Analysis
+Build a timeline of events during an outage or incident:
+
+```bash
+/grok-x "AWS us-east-1 outage timeline" --extract timeline --from 2026-03-01 --to 2026-03-02
+```
+
+## Combining with Other Flags
+
+<CodeGroup>
+```bash Timeline with citations
+/grok-x "OpenAI leadership changes" --extract timeline --citations --from 2023-01-01
+```
+
+```bash Timeline from specific handles
+/grok-x "Product updates" --extract timeline --handles openai,anthropic,xai --from 2025-06-01
+```
+
+```bash Timeline with web search
+/grok-x "SpaceX launch timeline" --extract timeline --web --from 2025-01-01
+```
+</CodeGroup>
+
+<Info>
+  Combine `--extract timeline` with `--web` to cross-reference X posts with external news sources for more complete timelines.
+</Info>
+
+## Related Flags
+
+- `--handles` — Limit timeline to specific accounts
+- `--web` — Include web sources in timeline construction
+- `--citations` — Add explicit citations for each event
+- `--from` / `--to` — Define precise time windows

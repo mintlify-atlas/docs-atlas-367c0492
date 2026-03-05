@@ -1,0 +1,142 @@
+---
+title: 'Cross-Platform Research'
+description: 'Combine X posts with web search for comprehensive research'
+---
+
+## Overview
+
+The `--web` flag enables Grok-X to search beyond X and pull in information from the broader web. Combined with `--citations`, this creates a cross-referenced research workflow where X signal is corroborated with external sources.
+
+## Use Case
+
+Cross-platform research is ideal for:
+- Verifying claims made on X with external sources
+- Finding context that exists outside of X discussions
+- Corroborating rumors or speculation with official reporting
+- Building comprehensive research briefs that combine social signal with journalistic sources
+
+## Example: Export Control Policy Analysis
+
+Research whether there are signs of a policy reversal using both X and web sources:
+
+```bash
+/grok-x "Are there signs of a chip export control reversal?" --web --citations
+```
+
+**Flags explained:**
+- `--web` — Enable web search in addition to X search
+- `--citations` — Include URLs for all sources referenced
+
+### Output
+
+Grok-X returns an analysis that synthesizes X signal with web sources:
+
+> **Chip Export Control Reversal — Cross-platform Analysis**
+>
+> Signals on X are mixed but trending toward cautious optimism. Several accounts in the semiconductor and policy space are reporting that behind-the-scenes negotiations between Commerce Department officials and industry lobbyists have resumed after a four-month pause.
+>
+> @SemiAnalysis flagged a detail buried in a Commerce Department procedural notice: the comment period for the existing BIS framework has been extended by 60 days, which they interpret as a sign the administration is reconsidering the rule's scope before finalizing it.
+>
+> @KaraSwisher cited a source at a major US fab who described the current rules as "administratively unworkable" and said they expected "significant carve-outs" within the quarter.
+>
+> Web search corroborates the procedural extension. The Reuters piece from Feb 28 confirms the BIS extension is formal, not speculative. The Bloomberg terminal note referenced on X but paywalled is consistent with the fab-side sourcing @KaraSwisher cited.
+>
+> **Assessment:** No formal reversal is imminent, but the procedural extension and resumed lobbying meetings suggest the rule's final form will be materially softer than the November 2025 draft.
+>
+> ---
+>
+> **Citations:**
+> - https://x.com/SemiAnalysis/status/189600234000000001
+> - https://x.com/karaswisher/status/189588901000000001
+> - https://www.reuters.com/technology/us-extends-chip-export-comment-period-2026-02-28/
+> - https://www.bloomberg.com/news/articles/2026-02-27/bis-chip-rule-industry-negotiations
+
+## How Cross-Platform Research Works
+
+<Steps>
+  <Step title="X signal identification">
+    Grok-X first searches X for relevant discussions, claims, and signals from accounts in the relevant domain (in this case, semiconductor and policy experts).
+  </Step>
+
+  <Step title="Web search corroboration">
+    For key claims and signals found on X, Grok-X performs targeted web searches to find:
+    - Official announcements
+    - News reporting from established outlets
+    - Primary source documents (government notices, company filings, etc.)
+  </Step>
+
+  <Step title="Synthesis and assessment">
+    Grok-X synthesizes the information:
+    - Identifies where X signal and web sources align
+    - Flags speculation vs. confirmed information
+    - Provides an overall assessment based on the combined evidence
+  </Step>
+
+  <Step title="Citation inclusion">
+    When `--citations` is enabled, all sources are listed at the end for verification.
+  </Step>
+</Steps>
+
+## Verification Workflow
+
+This research pattern is particularly valuable for:
+
+### Rumor Verification
+X often surfaces information before it's formally reported. Cross-platform search helps verify whether early signal has substance:
+
+```bash
+/grok-x "Is the M&A deal between X and Y confirmed?" --web --citations
+```
+
+### Policy Analysis
+Government and regulatory changes are often discussed on X by insiders before official announcements:
+
+```bash
+/grok-x "FDA guidance changes for AI medical devices" --web --from 2025-01-01 --citations
+```
+
+### Technical Research
+Developers and researchers often share findings on X before formal publication:
+
+```bash
+/grok-x "New jailbreak techniques for LLMs" --web --citations --from 2026-02-01
+```
+
+<Note>
+  Cross-platform research is most effective when X signal comes from domain experts or insiders. The algorithm prioritizes accounts with demonstrated expertise when corroborating with web sources.
+</Note>
+
+## Citation Format
+
+When `--citations` is enabled, sources are grouped by platform:
+
+- **X posts:** Direct links to posts (e.g., `https://x.com/handle/status/...`)
+- **News articles:** Links to the article page
+- **Official documents:** Links to PDFs, government pages, or corporate sources
+- **Paywalled content:** Noted as such with the outlet name
+
+## Combining with Other Flags
+
+<CodeGroup>
+```bash Web + timeline extraction
+/grok-x "SpaceX Starship test timeline" --web --extract timeline --from 2025-06-01 --citations
+```
+
+```bash Web + specific handles
+/grok-x "What is @pmarca saying about AI policy?" --handles pmarca --web --citations
+```
+
+```bash Web + analysis
+/grok-x "Quantitative analysis of tech layoff announcements" --web --analyze --from 2026-01-01
+```
+</CodeGroup>
+
+<Info>
+  The `--web` flag is particularly powerful when combined with `--extract timeline` or `--extract claims` to build comprehensive, multi-source timelines or claim databases.
+</Info>
+
+## Related Flags
+
+- `--citations` — Always pair with `--web` for verification workflows
+- `--deep` — Enable more thorough cross-platform analysis
+- `--from` / `--to` — Constrain time windows for both X and web search
